@@ -34,7 +34,7 @@ defmodule Apiv3.Endpoint do
     headers: ["Authorization", "Content-Type", "Accept", "Origin",
               "User-Agent", "DNT","Cache-Control", "X-Mx-ReqToken",
               "Keep-Alive", "X-Requested-With", "If-Modified-Since",
-              "X-CSRF-Token", "remember_token"]
+              "X-CSRF-Token", "simwms-account-session", "simwms-master-key"]
 
   plug Plug.Session,
     store: :cookie,

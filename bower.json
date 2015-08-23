@@ -1,0 +1,21 @@
+{
+  "name": "apiv3",
+  "version": "0.0.0",
+  "homepage": "https://github.com/foxnewsnetwork/simwms",
+  "authors": [
+    "Thomas Chen <foxnewsnetwork@gmail.com>"
+  ],
+  "description": "nothing to say, just the frontend assets",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "fontawesome": "~4.3.0",
+    "bootstrap-sass": "~3.3.4"
+  }
+}

@@ -35,9 +35,10 @@ defmodule Apiv3.Mixfile do
      {:phoenix_html, "~> 2.0"},
      {:phoenix_live_reload, "~> 0.6", only: :dev},
      {:cowboy, "~> 1.0"},
-     {:fox, "~> 0.0.7"},
+     {:fox, "~> 0.1"},
      {:cors_plug, "~> 0.1.3"},
      {:timex, "~>0.16"},
-     {:timex_ecto, "~> 0.4"}]
+     {:timex_ecto, "~> 0.4"},
+     {:pipe, "~> 0.0.2"}]
   end
 end

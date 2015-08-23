@@ -19,6 +19,7 @@ defmodule Apiv3.Web do
   def model do
     quote do
       use Ecto.Model
+      use Timex.Ecto.Timestamps
     end
   end
 
@@ -29,7 +30,7 @@ defmodule Apiv3.Web do
       alias Apiv3.Repo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
-
+      import Apiv3.AccountSessionHelper, only: [current_account: 1]
       import Apiv3.Router.Helpers
     end
   end
@@ -45,6 +46,19 @@ defmodule Apiv3.Web do
       use Phoenix.HTML
 
       import Apiv3.Router.Helpers
+      import Fox.RecordExt
+      import Fox.DictExt
+
+      def render_many([], _), do: []
+      def render_many([model|_]=collection, template) when is_binary(template) do
+        view = view_for_model(model)
+        render_many(collection, view, template)
+      end
+
+      def render_one(model, template) when is_binary(template) do
+        view = view_for_model model
+        render_one(model, view, template)
+      end
     end
   end
 
