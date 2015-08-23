@@ -46,6 +46,7 @@ defmodule Apiv3.WeighticketView do
       issuer_id: weighticket.issuer_id,
       finisher_id: weighticket.finisher_id,
       dock_id: weighticket.dock_id,
+      account_id: weighticket.account_id,
       truck_id: just_id(weighticket.truck),
       pounds: weighticket.pounds,
       license_plate: weighticket.license_plate,

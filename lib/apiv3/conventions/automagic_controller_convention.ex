@@ -6,6 +6,24 @@ defmodule Apiv3.AutomagicControllerConvention do
       plug :enforce_ownership, actions: [:show, :update, :delete]
 
       alias Apiv3.Repo
+
+      def create(conn, params) do
+        make_params = params |> Dict.fetch! infer_model_key |> Atom.to_string
+        changeset = conn
+        |> current_account
+        |> build(infer_collection_key)
+        |> infer_model_class.changeset(make_params)
+
+        if changeset.valid? do
+          model = Repo.insert!(changeset) |> Repo.preload(@preload_fields)
+          render(conn, "show.json", [{infer_model_key, model}])
+        else
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(Apiv3.ChangesetView, "error.json", changeset: changeset)
+        end
+      end
+
       def show(conn, %{"model" => model}) do
         model = model |> Repo.preload(@preload_fields)
         conn |> render("show.json", [{infer_model_key, model}])
@@ -37,6 +55,15 @@ defmodule Apiv3.AutomagicControllerConvention do
         |> Atom.to_string
         |> Fox.StringExt.reverse_consume!("Controller")
         |> String.to_existing_atom
+      end
+
+      defp infer_collection_key do
+        infer_model_class
+        |> Atom.to_string
+        |> Fox.StringExt.consume!("Elixir.Apiv3.")
+        |> String.downcase
+        |> Fox.StringExt.pluralize
+        |> String.to_atom
       end
 
       defp infer_model_key do

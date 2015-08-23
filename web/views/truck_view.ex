@@ -50,6 +50,7 @@ defmodule Apiv3.TruckView do
       dock_id: truck.dock_id,
       appointment_id: truck.appointment_id,
       weighticket_id: truck.weighticket_id,
+      account_id: truck.account_id,
       arrived_at: truck.arrived_at,
       departed_at: truck.departed_at,
       docked_at: truck.docked_at,

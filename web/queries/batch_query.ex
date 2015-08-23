@@ -6,12 +6,13 @@ defmodule Apiv3.BatchQuery do
   @preload_fields [:truck, :appointment, :pictures, pickup_appointments: :outgoing_batches]
 
   def preload_fields, do: @preload_fields
-  @default_query from b in Batch,
+  @default_index_query from b in Batch,
     where: is_nil(b.deleted_at),
     select: b
 
-  def index(params) do
-    @default_query
+  def index(params, %{id: id}) do
+    @default_index_query
+    |> where([b], b.account_id == ^id)
     |> consider_warehouse(params)
     |> consider_dock(params)
     |> consider_truck(params)

@@ -53,6 +53,7 @@ defmodule Apiv3.BatchView do
       deleted_at: batch.deleted_at,
       dock_id: batch.dock_id,
       truck_id: batch.truck_id,
+      account_id: batch.account_id,
       appointment_id: batch.appointment_id,
       warehouse_id: batch.warehouse_id,
       outgoing_count: batch.outgoing_count,

@@ -22,6 +22,7 @@ defmodule Apiv3.CameraView do
       created_at: camera.inserted_at,
       updated_at: camera.updated_at,
       camera_style: camera.camera_style,
+      account_id: camera.account_id,
       tile_id: camera.tile_id
     }
     |> Apiv3.TileView.reject_blank_keys

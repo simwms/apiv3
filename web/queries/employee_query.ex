@@ -9,8 +9,9 @@ defmodule Apiv3.EmployeeQuery do
   @default_index_query from e in Employee,
     where: is_nil(e.fired_at),
     order_by: [desc: e.arrived_at]
-  def index(_params) do
+  def index(_params, %{id: id}) do
     @default_index_query
+    |> where([e], e.account_id == ^id)
     |> select([e], e)
     |> preload(^@preload_fields)
   end

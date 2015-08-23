@@ -4,8 +4,9 @@ defmodule Apiv3.TruckQuery do
 
   @default_scope from t in Truck,
     where: is_nil(t.departed_at)
-  def index(_params) do
+  def index(_params, %{id: id}) do
     @default_scope
+    |> where([t], t.account_id == ^id)
     |> select([t], t)
   end
 
