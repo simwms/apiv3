@@ -25,7 +25,8 @@ defmodule Apiv3.PictureView do
       id: picture.id,
       location: picture.location,
       key: picture.key,
-      etag: picture.etag
+      etag: picture.etag,
+      account_id: picture.account_id
     }
   end
 end

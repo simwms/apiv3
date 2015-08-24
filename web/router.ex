@@ -56,7 +56,7 @@ defmodule Apiv3.Router do
     resources "/employees", EmployeeController, except: [:edit, :new]
     resources "/batch_relationships", BatchRelationshipController, except: [:edit, :new]
     resources "/appointment_relationships", AppointmentRelationshipController, except: [:edit, :new]
-    resources "/pictures", PictureController, except: [:edit, :new, :show, :index]
+    resources "/pictures", PictureController, only: [:create]
     resources "/account", AccountController, only: [:show], singleton: true, name: "my_account"
   end
   @doc """

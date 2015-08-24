@@ -11,7 +11,7 @@ defmodule Apiv3.Picture do
     timestamps
   end
 
-  @required_fields ~w(location assoc_id)
+  @required_fields ~w(location assoc_id account_id)
   @optional_fields ~w(etag key)
 
   @doc """

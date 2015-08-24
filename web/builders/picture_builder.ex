@@ -5,9 +5,11 @@ defmodule Apiv3.PictureBuilder do
   alias Apiv3.Picture
   alias Apiv3.Repo
 
-  def changeset(params) do
-    params
-    |> find_model
+  def changeset(params, account) do
+    model = params |> find_model
+    params = params |> Dict.put("account_id", account.id)
+
+    model
     |> Ecto.Model.build(:pictures)
     |> Picture.changeset(params)
   end
