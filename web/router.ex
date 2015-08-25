@@ -36,7 +36,7 @@ defmodule Apiv3.Router do
   end
 
   scope "/print", Apiv3 do
-    pipe_through :browser # Use the default browser stack
+    pipe_through :secure_browser # Use the default browser stack
     get "/reports", ReportController, :index
   end
 

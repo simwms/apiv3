@@ -42,8 +42,7 @@ defmodule Apiv3.BatchRelationshipBuilder do
     }
   end
 
-  def delete!(id) do
-    batch_relationship = Repo.get!(BatchRelationship, id)
+  def delete!(batch_relationship) do
     changeset = batch_relationship.batch_id |> batch_on_delete
     unless is_nil(changeset) do
       Repo.update! changeset

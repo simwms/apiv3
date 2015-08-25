@@ -2,7 +2,6 @@ defmodule Apiv3.PictureBuilderTest do
   use Apiv3.ModelCase
   alias Apiv3.Account
   alias Apiv3.Employee
-  alias Apiv3.Picture
   alias Apiv3.PictureBuilder
   @employee_attr %{
     "full_name" => "Louis CK",

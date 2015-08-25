@@ -9,13 +9,31 @@ defmodule Apiv3.ReportView do
     "#{alphabetize(tile.x)}-#{tile.y}"
   end
 
-  def batch_type(%{batch_type: "incoming"}), do: "+"
-  def batch_type(%{batch_type: "outgoing"}), do: "-"
-  def batch_type(%{batch_type: "split"}), do: "/"
+  def appt_permalink(%{appointment: %{permalink: permalink}}) when is_binary(permalink) do
+    permalink
+  end
+  def appt_permalink(_batch), do: "none"
+
+  def fa_class("outgoing"), do: "fa-minus"
+  def fa_class("incoming"), do: "fa-plus"
+  def fa_class(_), do: "fa-question-circle"
+
+  @spec batches([Apiv3.Appointment]) :: [{Apiv3.Batch, String.t}]
+  def batches(appointments) when is_list(appointments) do
+    appointments
+    |> Enum.flat_map(&batches/1)
+    |> Enum.sort(fn {b1, _}, {b2, _} -> b1.id < b2.id end)
+  end
+  def batches(%{batches: i_batches, outgoing_batches: o_batches}) do
+    xs = i_batches |> Enum.map(&({&1, "incoming"}))
+    ys = o_batches |> Enum.map(&({&1, "outgoing"}))
+    xs ++ ys
+  end
 
   def appointment_type(%{appointment_type: "dropoff"}), do: "+"
   def appointment_type(%{appointment_type: "pickup"}), do: "-"
   def appointment_type(%{appointment_type: "both"}), do: "+/-"
+  def appointment_type(_), do: "?"
 
   def is_fulfilled?(%{fulfilled_at: nil}), do: false
   def is_fulfilled?(%{fulfilled_at: _}), do: true
@@ -27,8 +45,10 @@ defmodule Apiv3.ReportView do
   def is_problem?(appt), do: "problem" == infer_status(appt)
   def is_expected?(appt), do: "expected" == infer_status(appt)
   def is_planned?(appt), do: "planned" == infer_status(appt)
-  def is_incoming?(batch), do: "incoming" == batch.batch_type
-  def is_outgoing?(batch), do: "outgoing" == batch.batch_type
+  def is_incoming?({_, "incoming"}), do: true
+  def is_incoming?(_), do: false
+  def is_outgoing?({_, "outgoing"}), do: true
+  def is_outgoing?(_), do: false
 
   def problem_filter(appointments), do: appointments |> Enum.filter(&is_problem?/1)
   def missing_filter(appointments), do: appointments |> Enum.filter(&is_missing?/1)
@@ -36,8 +56,8 @@ defmodule Apiv3.ReportView do
   def cancelled_filter(appointments), do: appointments |> Enum.filter(&is_cancelled?/1)
   def ongoing_filter(appointments), do: appointments |> Enum.filter(&is_expected?/1)
   def planned_filter(appointments), do: appointments |> Enum.filter(&is_planned?/1)
-  def incoming_filter(batches), do: batches |> Enum.filter(&is_incoming?/1)
-  def outgoing_filter(batches), do: batches |> Enum.filter(&is_outgoing?/1)
+  def incoming_batches(appointments), do: appointments |> batches |> Enum.filter(&is_incoming?/1)
+  def outgoing_batches(appointments), do: appointments |> batches |> Enum.filter(&is_outgoing?/1)
 
   def infer_status(appt) do
     cond do
@@ -45,8 +65,8 @@ defmodule Apiv3.ReportView do
       appt.cancelled_at -> "cancelled"
       appt.exploded_at -> "problem"
       is_nil(appt.expected_at) -> "problem"
-      appt.expected_at < Ecto.DateTime.utc -> "missing"
-      appt.expected_at > Ecto.DateTime.utc -> "planned"
+      appt.expected_at < Timex.Date.local -> "missing"
+      appt.expected_at > Timex.Date.local -> "planned"
       true -> "expected"
     end
   end

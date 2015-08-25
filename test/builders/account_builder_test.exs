@@ -24,4 +24,23 @@ defmodule Apiv3.AccountBuilderTest do
     assert Enum.count(appointments) == 2
     assert Enum.count(batches) == 3
   end
+
+  test "the seeds should be correct" do
+    changeset = Account.changeset(%Account{}, @account_attr)
+    {account, [tiles, appointments, batches]} = AccountBuilder.build! changeset
+    [appointment|_] = appointments
+    [dock, warehouse, scale, road] = tiles
+    
+    assert dock.tile_type == "barn"
+    assert warehouse.tile_type == "warehouse"
+    assert scale.tile_type == "scale"
+    assert road.tile_type == "road"
+
+    Enum.map batches, fn batch ->
+      assert batch.account_id == account.id
+      assert batch.appointment_id == appointment.id
+      assert batch.dock_id == dock.id
+      assert batch.warehouse_id == warehouse.id
+    end
+  end
 end

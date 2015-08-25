@@ -2,13 +2,12 @@ defmodule Apiv3.ReportController do
   use Apiv3.Web, :controller
   alias Apiv3.ReportQuery
   def index(conn, params) do
-    appointments = params |> ReportQuery.appointments |> Repo.all
-    batches = params |> ReportQuery.batches |> Repo.all
+    account = conn |> current_account
+    appointments = params |> ReportQuery.appointments(account) |> Repo.all
     assigns = [
       start_at: params["start_at"],
       finish_at: params["finish_at"],
-      appointments: appointments,
-      batches: batches
+      appointments: appointments
     ]
     conn
     |> Phoenix.Controller.put_layout("print.html")

@@ -38,7 +38,7 @@ defmodule Apiv3.AppointmentControllerTest do
     assert meta == %{"count" => 2, "total_pages" => 1, "current_page" => 1, "per_page" => 10}
 
     response = conn
-    |> get(path, %{"expected_at_start" => "2015-08-21T15:09:38-07:00"})
+    |> get(path, %{"expected_at_finish" => "2015-08-21T15:09:38-07:00"})
     |> json_response(200)
 
     assert response["appointments"] == []

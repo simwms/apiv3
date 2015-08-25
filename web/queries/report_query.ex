@@ -6,20 +6,18 @@ defmodule Apiv3.ReportQuery do
   alias Apiv3.BatchQuery
 
   @default_appointment_query from a in Appointment,
-    select: a
-  def appointments(params) do
-    @default_appointment_query
-    |> consider_start_finish_dates(params)
+    select: a,
+    preload: [
+      outgoing_batches: [:warehouse, :appointment],
+      batches: [:warehouse, :appointment]
+    ]
+  def default_appointment_query(%{id: id}) do
+    @default_appointment_query |> where([a], a.account_id == ^id)
   end
 
-  @default_batch_query from b in Batch,
-    select: b,
-    order_by: [desc: b.appointment_id, desc: b.inserted_at],
-    preload: [:warehouse, :appointment]
-  def batches(params) do
-    @default_batch_query
-    |> BatchQuery.created_at_start(params["start_at"])
-    |> BatchQuery.created_at_finish(params["finish_at"])
+  def appointments(params, account) do
+    default_appointment_query(account)
+    |> consider_start_finish_dates(params)
   end
 
   def consider_start_finish_dates(query, %{"start_at" => start_at, "finish_at" => finish_at}) do

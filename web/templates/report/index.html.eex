@@ -107,11 +107,11 @@
           </tr>
         </thead>
         <tbody>
-          <%= for batch <- assigns.batches do %>
+          <%= for {batch, type} <- batches(assigns.appointments) do %>
             <tr>
               <td>
-                <%= batch_type batch %>
-                <%= batch.appointment.permalink %>
+                <i class="fa <%= fa_class type %>"></i>
+                <%= appt_permalink batch %>
               </td>
               <td><%= storage_position batch.warehouse %></td>
               <td>
@@ -128,19 +128,19 @@
             <td></td>
             <td></td>
             <td>Incoming Batches</td>
-            <td><%= count incoming_filter assigns.batches %></td>
+            <td><%= count incoming_batches assigns.appointments %></td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td>Outgoing Batches</td>
-            <td><%= count outgoing_filter assigns.batches %></td>
+            <td><%= count outgoing_batches assigns.appointments %></td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td>Total Batch Transactions</td>
-            <td><%= count assigns.batches %></td>
+            <td><%= count batches assigns.appointments %></td>
           </tr>
         </tfoot>
       </table>

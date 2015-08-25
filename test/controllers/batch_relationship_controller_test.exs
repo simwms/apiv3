@@ -18,7 +18,7 @@ defmodule Apiv3.BatchRelationshipControllerTest do
     {:ok, conn: conn, account: account, pickup: pickup}
   end
 
-  test "it should create", %{conn: conn, account: account, pickup: pickup} do
+  test "create and destroy", %{conn: conn, account: account, pickup: pickup} do
     [batch|_] = account |> assoc(:batches) |> Repo.all
     assert batch.outgoing_count == 0
     params = %{
@@ -38,7 +38,26 @@ defmodule Apiv3.BatchRelationshipControllerTest do
     assert br["account_id"] == account.id
 
     batch = Repo.get!(Batch, batch.id)
-    
     assert batch.outgoing_count == 1
+
+    path = conn |> batch_relationship_path(:delete, br["id"])
+    %{"batch_relationship" => br} = conn
+    |> delete(path, %{})
+    |> json_response(200)
+
+    assert br["id"]
+    refute Repo.get(Apiv3.BatchRelationship, br["id"])
+
+    batch = Repo.get!(Batch, batch.id)
+    assert batch.outgoing_count == 0
+  end
+
+  test "index", %{conn: conn} do
+    path = conn |> batch_relationship_path(:index)
+    %{"batch_relationships" => brs} = conn
+    |> get(path, %{})
+    |> json_response(200)
+
+    assert Enum.count(brs) == 0
   end
 end

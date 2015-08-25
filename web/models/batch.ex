@@ -34,6 +34,22 @@ defmodule Apiv3.Batch do
     |> validate_inclusion(:batch_type, @batch_types)
   end
 
+  def batch_type(batch) do
+    case batch |> assoc(:pickup_appointments) |> select_count do
+      0 -> "incoming"
+      n when n > 0 -> "outgoing"
+      _ -> "unknown"
+    end
+  end
+
+  def select_count(%Ecto.Query{}=query) do
+    query |> Ecto.Query.select([x], count(x.id)) |> Repo.one!
+  end
+
+  def select_count(queryable) do
+    Ecto.Query.from(x in queryable) |> select_count
+  end
+
   before_insert :create_permalink
   def create_permalink(changeset) do
     permalink = changeset |> Ecto.Changeset.get_field(:permalink)

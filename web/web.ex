@@ -20,6 +20,7 @@ defmodule Apiv3.Web do
     quote do
       use Ecto.Model
       use Timex.Ecto.Timestamps
+      alias Apiv3.Repo
     end
   end
 

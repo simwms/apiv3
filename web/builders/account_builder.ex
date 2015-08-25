@@ -48,7 +48,7 @@ defmodule Apiv3.AccountBuilder do
   def seed_tiles({account, []}) do
     pipe_with &Enum.map/2,
       @tile_seeds 
-      |> build_changeset(account, :tiles) 
+      |> build_changeset(account, :tiles, Apiv3.Tile)
       |> Repo.insert!
   end
 
@@ -70,7 +70,7 @@ defmodule Apiv3.AccountBuilder do
       @appointment_seeds
       |> Dict.put("expected_at", Timex.Date.local)
       |> Dict.put("fulfilled_at", Timex.Date.local)
-      |> build_changeset(account, :appointments)
+      |> build_changeset(account, :appointments, Apiv3.Appointment)
       |> Repo.insert!
   end
 
@@ -95,11 +95,12 @@ defmodule Apiv3.AccountBuilder do
       |> Dict.put("appointment_id", appointment.id)
       |> Dict.put("dock_id", dock.id)
       |> Dict.put("warehouse_id", warehouse.id)
-      |> build_changeset(account, :batches)
+      |> build_changeset(account, :batches, Apiv3.Batch)
       |> Repo.insert!
   end
 
-  def build_changeset(params, account, relationship_key) do
-    Ecto.Model.build(account, relationship_key, params)
+  def build_changeset(params, account, relationship_key, model_class) do
+    Ecto.Model.build(account, relationship_key)
+    |> model_class.changeset(params)
   end
 end
