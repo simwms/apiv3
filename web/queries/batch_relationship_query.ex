@@ -6,18 +6,25 @@ defmodule Apiv3.BatchRelationshipQuery do
   @default_index_query from b in BatchRelationship,
     select: b,
     preload: ^@preload_fields
-  def index(%{"appointment_id" => aid, "batch_id" => bid}) do
-    @default_index_query
-    |> where([b], b.appointment_id == ^aid)
-    |> where([b], b.batch_id == ^bid)
+    
+  def index(params, account\\nil) do
+    query = default_index_query(account)
+    ["appointment_id", "batch_id"]
+    |> Enum.reduce(query, &consider_where_fields(params, &1, &2))
   end
-  def index(%{"appointment_id" => aid}) do
-    @default_index_query
-    |> where([b], b.appointment_id == ^aid)
+
+  def consider_where_fields(params, key, query) do
+    case params |> Dict.get(key) do
+      nil -> query
+      id -> query |> where([b], field(b, ^(String.to_existing_atom key)) == ^id)
+    end
   end
-  def index(_) do
+
+  def default_index_query(%{id: id}) do
     @default_index_query
+    |> where([b], b.account_id == ^id)
   end
+  def default_index_query(_), do: @default_index_query
 
   def preload_fields, do: @preload_fields
 end

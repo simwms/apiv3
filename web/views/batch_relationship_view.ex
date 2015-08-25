@@ -36,7 +36,8 @@ defmodule Apiv3.BatchRelationshipView do
     %{
       id: r.id,
       batch_id: r.batch_id,
-      appointment_id: r.appointment_id
+      appointment_id: r.appointment_id,
+      account_id: r.account_id
     }
   end
 end

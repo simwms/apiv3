@@ -35,6 +35,7 @@ defmodule Apiv3.AppointmentRelationshipView do
     %{id: ar.id,
       pickup_id: ar.pickup_id,
       dropoff_id: ar.dropoff_id,
+      account_id: ar.account_id,
       notes: ar.notes,
       created_at: ar.inserted_at,
       updated_at: ar.updated_at }

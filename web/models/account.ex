@@ -19,7 +19,8 @@ defmodule Apiv3.Account do
     has_many :tiles, Apiv3.Tile
     has_many :trucks, Apiv3.Truck
     has_many :weightickets, Apiv3.Weighticket
-    
+    has_many :appointment_relationships, Apiv3.AppointmentRelationship
+    has_many :batch_relationships, Apiv3.BatchRelationship
     timestamps
   end
 

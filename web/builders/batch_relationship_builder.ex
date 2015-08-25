@@ -2,7 +2,6 @@ defmodule Apiv3.BatchRelationshipBuilder do
   alias __MODULE__
   alias Apiv3.BatchRelationship
   alias Apiv3.Batch
-  # alias Apiv3.Appointment
   alias Apiv3.Repo
   defstruct valid?: false,
     changeset: BatchRelationship.changeset(%BatchRelationship{}, %{}),
@@ -17,21 +16,23 @@ defmodule Apiv3.BatchRelationshipBuilder do
   end
 
   def batch_on_create(nil), do: nil
-  def batch_on_create(batch_id) when is_binary(batch_id) do
+  def batch_on_create(batch_id) do
     batch = Repo.get! Batch, batch_id
-    Batch.changeset(batch, %{"outgoing_count" => (batch.outgoing_count + 1)})
+    Ecto.Changeset.change(batch, outgoing_count: batch.outgoing_count + 1)
   end
   def batch_on_create(_), do: nil
 
   def batch_on_delete(nil), do: nil
-  def batch_on_delete(batch_id) when is_binary(batch_id) do
+  def batch_on_delete(batch_id) do
     batch = Repo.get! Batch, batch_id
-    Batch.changeset(batch, %{"outgoing_count" => (batch.outgoing_count - 1)})
+    Ecto.Changeset.change(batch, outgoing_count: batch.outgoing_count - 1)
   end
   def batch_on_delete(_), do: nil
 
-  def create(params) do
-    changeset = BatchRelationship.changeset(%BatchRelationship{}, params)
+  def create(params, account) do
+    changeset = account
+    |> Ecto.Model.build(:batch_relationships)
+    |> BatchRelationship.changeset(params)
     batch_changeset = params["batch_id"] |> batch_on_create
 
     %BatchRelationshipBuilder{

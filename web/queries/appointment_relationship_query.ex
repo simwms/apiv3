@@ -8,20 +8,22 @@ defmodule Apiv3.AppointmentRelationshipQuery do
   @default_index_query from a in AppointmentRelationship,
     preload: ^@preload_fields,
     select: a
-  def index(%{"dropoff_id" => dropoff_id, "pickup_id" => pickup_id}) do
-    @default_index_query
-    |> where([a], a.dropoff_id == ^dropoff_id)
-    |> where([a], a.pickup_id == ^pickup_id)
+
+  def index(params, account) do
+    query = default_index_query(account)
+    ["dropoff_id", "pickup_id"]
+    |> Enum.reduce(query, &consider_param(params, &1, &2))
   end
-  def index(%{"dropoff_id" => id}) do
-    @default_index_query
-    |> where([a], a.dropoff_id == ^id)
+
+  def consider_param(params, key, query) do
+    case params |> Dict.get(key) do
+      nil -> query
+      id -> query |> where([a], field(a, ^(String.to_existing_atom key)) == ^id)
+    end
   end
-  def index(%{"pickup_id" => id}) do
+
+  def default_index_query(%{id: id}) do
     @default_index_query
-    |> where([a], a.pickup_id == ^id)
-  end
-  def index(_params) do
-    @default_index_query
+    |> where([a], a.account_id == ^id)
   end
 end

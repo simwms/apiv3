@@ -54,6 +54,8 @@ defmodule Apiv3.AutomagicControllerConvention do
       
       plug Apiv3.Plugs.EnforceOwnership,
         actions: [:show, :update, :delete]
+
+      defoverridable [create: 2, delete: 2]
     end    
   end
 end
