@@ -13,7 +13,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :apiv3, Apiv3.Endpoint,
   http: [port: {:system, "PORT"}],
-  url: [host: "example.com", port: 80],
+  url: [host: "evening-springs-7575.herokuapp.com", port: 80],
   cache_static_manifest: "priv/static/manifest.json"
 
 # Do not print debug messages in production
@@ -56,6 +56,13 @@ config :logger, level: :info
 #     config :apiv3, Apiv3.Endpoint, server: true
 #
 
-# Finally import the config/prod.secret.exs
-# which should be versioned separately.
-import_config "prod.secret.exs"
+config :apiv3, Apiv3.Endpoint,
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+config :apiv3, Apiv3.Repo,
+  adapter: Ecto.Adapters.Postgres,
+  url: System.get_env("DATABASE_URL"),
+  pool_size: 20 # The amount of database connections in the pool
+
+config :simwms,
+  master_key: System.get_env("SIMWMS_MASTER_KEY")
