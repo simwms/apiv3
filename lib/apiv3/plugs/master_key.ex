@@ -19,6 +19,7 @@ defmodule Apiv3.Plugs.MasterKey do
   defp has_master_key?(conn) do
     conn 
     |> get_req_header("simwms-master-key")
+    |> List.first
     |> equal?(@master_key)
   end
 
