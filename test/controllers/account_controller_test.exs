@@ -23,7 +23,7 @@ defmodule Apiv3.AccountControllerTest do
     response = conn 
     |> post(path, %{})
     |> json_response(403)
-    assert response == %{"error" => "not authorized"}
+    assert response == %{"error" => "missing request master key"}
   end
 
   test "it should successfully create accounts", %{conn: conn} do
@@ -57,6 +57,6 @@ defmodule Apiv3.AccountControllerTest do
     response = conn
     |> get(my_account_path(conn, :show))
     |> json_response(403)
-    assert response == %{"error" => "not authorized"}
+    assert response == %{"error" => "Not logged in"}
   end
 end

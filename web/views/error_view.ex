@@ -9,6 +9,10 @@ defmodule Apiv3.ErrorView do
     "Server internal error"
   end
 
+  def render("ok.json", _) do
+    %{"ok" => "ok"}
+  end
+
   def render("forbidden.json", %{msg: msg}) do
     %{"error" => msg}
   end
