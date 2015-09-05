@@ -22,5 +22,5 @@ defmodule Apiv3.Plugs.MasterKey do
     |> equal?(@master_key)
   end
 
-  defp equal?(a,b), do: "#{a}" == "#{b}"
+  defp equal?(a,b), do: String.strip("#{a}") == String.strip("#{b}")
 end
