@@ -6,13 +6,13 @@ defmodule Apiv3.Plugs.MasterKey do
   def init(o), do: o
 
   def call(conn, _o) do
-    case conn |> has_master_key? do
-      true -> conn
-      _ -> 
-        conn
-        |> put_status(:forbidden)
-        |> render(Apiv3.ErrorView, "forbidden.json", [msg: "bad master key"])
-        |> halt
+    if conn |> has_master_key? do
+      conn
+    else
+      conn
+      |> put_status(:forbidden)
+      |> render(Apiv3.ErrorView, "forbidden.json", msg: "bad master key")
+      |> halt
     end
   end
 
