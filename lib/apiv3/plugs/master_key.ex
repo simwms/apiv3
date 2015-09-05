@@ -23,8 +23,12 @@ defmodule Apiv3.Plugs.MasterKey do
     |> match_master_key?
   end
 
+  def master_key do
+    @master_key
+  end
+
   defp match_master_key?(a) when is_binary(a) do
-    String.strip(a) == @master_key
+    String.strip(a) == master_key
   end
   defp match_master_key?(_), do: false
 end
