@@ -1,7 +1,6 @@
 defmodule Apiv3.Plugs.MasterKey do
   import Plug.Conn
   import Phoenix.Controller, only: [render: 4]
-  @master_key Application.get_env(:simwms, :master_key)
 
   def init(o), do: o
 
@@ -25,7 +24,7 @@ defmodule Apiv3.Plugs.MasterKey do
   end
 
   def master_key do
-    @master_key
+    Application.get_env(:simwms, :master_key)
   end
 
   defp match_master_key?(request_key) do
