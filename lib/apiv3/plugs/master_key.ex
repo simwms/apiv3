@@ -10,7 +10,7 @@ defmodule Apiv3.Plugs.MasterKey do
       _ -> 
         conn
         |> put_status(:forbidden)
-        |> render(Apiv3.ErrorView, "forbidden.json", [])
+        |> render(Apiv3.ErrorView, "forbidden.json", [msg: "bad master key"])
         |> halt
     end
   end
@@ -23,5 +23,5 @@ defmodule Apiv3.Plugs.MasterKey do
     |> equal?(@master_key)
   end
 
-  defp equal?(a,b), do: String.strip("#{a}") == String.strip("#{b}")
+  defp equal?(a,b), do: String.strip(a) == String.strip(b)
 end

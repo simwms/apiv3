@@ -9,6 +9,9 @@ defmodule Apiv3.ErrorView do
     "Server internal error"
   end
 
+  def render("forbidden.json", [msg: msg]) do
+    %{"error" => msg}
+  end
   def render("forbidden.json", _assigns) do
     %{"error" => "not authorized"}
   end
