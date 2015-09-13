@@ -57,7 +57,8 @@ config :logger, level: :info
 #
 
 config :apiv3, Apiv3.Endpoint,
-  secret_key_base: System.get_env("SECRET_BASE_KEY")
+  secret_key_base: System.get_env("SECRET_BASE_KEY"),
+  roxie_master_key: System.get_env("ROXIE_MASTER_KEY")
 
 config :apiv3, Apiv3.Repo,
   adapter: Ecto.Adapters.Postgres,

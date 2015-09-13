@@ -22,6 +22,7 @@ defmodule Apiv3.AccountView do
       email: account.email,
       access_key_id: account.access_key_id,
       secret_access_key: account.secret_access_key,
+      roxie_key: Application.get_env(:apiv3, Apiv3.Endpoint)[:roxie_master_key],
       region: account.region
     }
   end

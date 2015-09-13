@@ -18,7 +18,7 @@ defmodule Apiv3.Mixfile do
   def application do
     [mod: {Apiv3, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger,
-                    :phoenix_ecto, :postgrex, :fox, :timex]]
+                    :phoenix_ecto, :postgrex, :fox, :timex, :tzdata]]
   end
 
   # Specifies which paths to compile per environment
@@ -29,16 +29,16 @@ defmodule Apiv3.Mixfile do
   #
   # Type `mix help deps` for examples and options
   defp deps do
-    [{:phoenix, "~> 0.16"},
-     {:phoenix_ecto, "~> 0.9"},
+    [{:phoenix, "~> 1.0"},
+     {:phoenix_ecto, "~> 1.1"},
      {:postgrex, ">= 0.0.0"},
-     {:phoenix_html, "~> 2.0"},
-     {:phoenix_live_reload, "~> 0.6", only: :dev},
+     {:phoenix_html, "~> 2.1"},
+     {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:cowboy, "~> 1.0"},
      {:fox, "~> 0.1"},
      {:cors_plug, "~> 0.1.3"},
-     {:timex, "~>0.16"},
-     {:timex_ecto, "~> 0.4"},
+     {:timex, "~>0.19"},
+     {:timex_ecto, "~> 0.5"},
      {:pipe, "~> 0.0.2"}]
   end
 end

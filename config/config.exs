@@ -10,6 +10,7 @@ config :apiv3, Apiv3.Endpoint,
   url: [host: "localhost"],
   root: Path.dirname(__DIR__),
   secret_key_base: "Sf/gFdl9AfdXLJV+zyKYs7DOwOAy8N+YVSjNhFY29fMvyYB2Ox63M5a9ebN/5TF+",
+  roxie_master_key: "furishikiru-ame-ni-mi-o-kakusu-you-ni-shite-odoru",
   render_errors: [default_format: "html"],
   pubsub: [name: Apiv3.PubSub,
            adapter: Phoenix.PubSub.PG2]

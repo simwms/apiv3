@@ -60,7 +60,7 @@ defmodule Apiv3.Router do
     resources "/pictures", PictureController, only: [:create]
     resources "/account", AccountController, only: [:show], singleton: true, name: "my_account"
   end
-  @doc """
+  @moduledoc """
   「鼓動が止むまで傍にいる」なんて
   違える約束はせず　ただあなたといたい
 
