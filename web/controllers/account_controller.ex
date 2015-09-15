@@ -24,7 +24,7 @@ defmodule Apiv3.AccountController do
   end
 
   def update(conn, %{"id" => id, "account" => account_params}) do
-    account = Repo.get!(Account, id)
+    account = Repo.get(Account, id) || Repo.get_by!(Account, permalink: id)
     changeset = Account.changeset(account, account_params)
 
     if changeset.valid? do
