@@ -53,7 +53,7 @@ defmodule Apiv3.AppointmentControllerTest do
     |> get(path, %{})
     |> json_response(403)
 
-    assert response == %{"error" => "not authorized"}
+    assert response == %{"error" => "not yours"}
   end
 
   test "it should show an appointment correctly", %{conn: conn, account: account} do

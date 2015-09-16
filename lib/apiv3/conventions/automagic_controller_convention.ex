@@ -1,5 +1,6 @@
 defmodule Apiv3.AutomagicControllerConvention do
-  defmacro __using__(_) do
+  defmacro __using__(opts\\[]) do
+    plug_on_actions = opts[:only] || [:show, :update, :delete]
     quote location: :keep do
       @preload_fields Module.get_attribute(__MODULE__, :preload_fields) || []
       use Fox.AtomExt
@@ -49,13 +50,13 @@ defmodule Apiv3.AutomagicControllerConvention do
       end
 
       plug Apiv3.Plugs.AutoModel,
-        actions: [:show, :update, :delete],
+        actions: unquote(plug_on_actions),
         model: Fox.AtomExt.infer_model_module(__MODULE__)
       
       plug Apiv3.Plugs.EnforceOwnership,
-        actions: [:show, :update, :delete]
+        actions: unquote(plug_on_actions)
 
-      defoverridable [create: 2, delete: 2]
+      defoverridable [create: 2, delete: 2, show: 2, update: 2]
     end    
   end
 end

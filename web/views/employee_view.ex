@@ -20,6 +20,7 @@ defmodule Apiv3.EmployeeView do
   def ember_attributes(employee) do
     %{
       id: employee.id,
+      account_id: employee.account_id,
       full_name: employee.full_name,
       title: employee.title,
       arrived_at: employee.arrived_at,
