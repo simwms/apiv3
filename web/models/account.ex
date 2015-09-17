@@ -10,7 +10,7 @@ defmodule Apiv3.Account do
     field :access_key_id, :string
     field :secret_access_key, :string
     field :region, :string
-
+    
     has_many :appointments, Apiv3.Appointment
     has_many :batches, Apiv3.Batch
     has_many :cameras, Apiv3.Camera
@@ -23,7 +23,7 @@ defmodule Apiv3.Account do
     has_many :batch_relationships, Apiv3.BatchRelationship
     timestamps
   end
-
+  
   @required_fields ~w(email service_plan_id timezone)
   @optional_fields ~w(access_key_id secret_access_key region)
 

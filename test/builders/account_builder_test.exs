@@ -17,17 +17,18 @@ defmodule Apiv3.AccountBuilderTest do
 
   test "it should properly seed" do
     changeset = Account.changeset(%Account{}, @account_attr)
-    {account, [tiles, appointments, batches]} = AccountBuilder.build! changeset
+    {account, [tiles, appointments, batches, employees]} = AccountBuilder.build! changeset
     assert account.id
     assert account.permalink
     assert Enum.count(tiles) == 4
     assert Enum.count(appointments) == 2
     assert Enum.count(batches) == 3
+    assert Enum.count(employees) == 1
   end
 
   test "the seeds should be correct" do
     changeset = Account.changeset(%Account{}, @account_attr)
-    {account, [tiles, appointments, batches]} = AccountBuilder.build! changeset
+    {account, [tiles, appointments, batches, [employee]]} = AccountBuilder.build! changeset
     [appointment|_] = appointments
     [dock, warehouse, scale, road] = tiles
     
@@ -42,5 +43,8 @@ defmodule Apiv3.AccountBuilderTest do
       assert batch.dock_id == dock.id
       assert batch.warehouse_id == warehouse.id
     end
+
+    assert employee.email == account.email
+    assert employee.full_name == "Admin Manager"
   end
 end

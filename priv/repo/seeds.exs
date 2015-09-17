@@ -12,7 +12,7 @@
 account_attr = %{
   "service_plan_id" => "test",
   "timezone" => "Americas/Los_Angeles",
-  "email" => "test@test.test",
+  "email" => "test2@test.co",
   "access_key_id" => "666hailsatan",
   "secret_access_key" => "ikitsu you na planetarium",
   "region" => "Japan"

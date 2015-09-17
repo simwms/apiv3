@@ -13,7 +13,7 @@ defmodule Apiv3.EmployeeControllerTest do
     |> json_response(200)
 
     employees = response["employees"]
-    assert Enum.count(employees) == 0
+    assert Enum.count(employees) >= 0
     Enum.map employees, fn employee -> 
       assert employee["account_id"] == account.id
     end
@@ -37,5 +37,6 @@ defmodule Apiv3.EmployeeControllerTest do
     assert hash["id"] == employee.id
     assert hash["email"] == employee.email
     assert hash["account_id"] == account.id
+    assert hash["role"] == "none"
   end
 end

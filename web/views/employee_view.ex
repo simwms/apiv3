@@ -31,6 +31,7 @@ defmodule Apiv3.EmployeeView do
       tile_id: employee.tile_id,
       createdAt: employee.inserted_at,
       updatedAt: employee.updated_at,
+      role: employee.role,
       pictures: just_ids(employee.pictures)
     }
   end

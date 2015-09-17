@@ -10,6 +10,7 @@ defmodule Apiv3.AccountBuilder do
       |> seed_tiles
       |> seed_appointments
       |> seed_batches
+      |> seed_employees
   end
 
   def state({account, seeds}=acc, f), do: {account, seeds ++ [f.(acc)]}
@@ -102,5 +103,15 @@ defmodule Apiv3.AccountBuilder do
   def build_changeset(params, account, relationship_key, model_class) do
     Ecto.Model.build(account, relationship_key)
     |> model_class.changeset(params)
+  end
+
+  @employee_seeds [ %{ "full_name" => "Admin Manager", "role" => "admin_manager" } ]
+  def seed_employees({account, _}) do
+    @employee_seeds
+    pipe_with &Enum.map/2,
+      @employee_seeds
+      |> Dict.put("email", account.email)
+      |> build_changeset(account, :employees, Apiv3.Employee)
+      |> Repo.insert!
   end
 end
