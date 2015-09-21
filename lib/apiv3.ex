@@ -27,4 +27,11 @@ defmodule Apiv3 do
     Apiv3.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  # Call this from iex -S mix phoenix.server to get login credentials
+  def gimme_dev_credentials do
+    [employee|_] = Apiv3.Repo.all(Apiv3.Employee)
+    account = employee |> Ecto.Model.assoc(:account) |> Apiv3.Repo.one!
+    %{email: employee.email, token: account.permalink}
+  end
 end

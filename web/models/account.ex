@@ -11,6 +11,7 @@ defmodule Apiv3.Account do
     field :secret_access_key, :string
     field :region, :string
     
+    has_one :service_plan, Apiv3.ServicePlan
     has_many :appointments, Apiv3.Appointment
     has_many :batches, Apiv3.Batch
     has_many :cameras, Apiv3.Camera

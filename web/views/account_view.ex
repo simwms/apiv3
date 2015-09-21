@@ -6,7 +6,13 @@ defmodule Apiv3.AccountView do
   end
 
   def render("show.json", %{account: account}) do
-    %{account: render_one(account, "account.json")}
+    case account.service_plan do
+      %Ecto.Association.NotLoaded{} -> 
+        %{account: render_one(account, "account.json")}
+      service_plan ->
+        %{account: render_one(account, "account.json"),
+          service_plan: render_one(service_plan, Apiv3.ServicePlanView, "service_plan.json")}
+    end
   end
 
   def render("account.json", %{account: account}) do
@@ -17,7 +23,7 @@ defmodule Apiv3.AccountView do
     %{
       id: account.id,
       permalink: account.permalink,
-      service_plan_id: account.service_plan_id,
+      service_plan_id: just_id(account.service_plan),
       timezone: account.timezone,
       email: account.email,
       access_key_id: account.access_key_id,

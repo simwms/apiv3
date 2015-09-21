@@ -4,14 +4,15 @@ defmodule Apiv3.SessionConnCase do
   using do
     quote do
       use Apiv3.ConnCase
-      alias Apiv3.Account
+      alias Apiv3.AccountBuilder
       @account_attr %{
         "service_plan_id" => "test",
-        "timezone" => "Americas/Los_Angeles",
+        "timezone" => "Americas/Chicago",
         "email" => "test@test.test",
         "access_key_id" => "666hailsatan",
         "secret_access_key" => "ikitsu you na planetarium",
-        "region" => "Japan"
+        "region" => "US East",
+        "owner_name" => "Velma Kelley"
       }
       def account_session_conn do
         {account, _} = build_account
@@ -23,9 +24,9 @@ defmodule Apiv3.SessionConnCase do
       end
       
       def build_account do
-        %Account{}
-        |> Account.changeset(@account_attr) 
-        |> Apiv3.AccountBuilder.build!
+        @account_attr
+        |> AccountBuilder.virtual_changeset
+        |> AccountBuilder.build!
       end
     end
   end

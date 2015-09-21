@@ -12,11 +12,12 @@
 account_attr = %{
   "service_plan_id" => "test",
   "timezone" => "Americas/Los_Angeles",
-  "email" => "test2@test.co",
+  "email" => Faker.Internet.email,
   "access_key_id" => "666hailsatan",
   "secret_access_key" => "ikitsu you na planetarium",
-  "region" => "Japan"
+  "region" => "Japan",
+  "owner_name" => Faker.Name.name
 }
-%Apiv3.Account{}
-|> Apiv3.Account.changeset(account_attr) 
+account_attr
+|> Apiv3.AccountBuilder.virtual_changeset
 |> Apiv3.AccountBuilder.build!

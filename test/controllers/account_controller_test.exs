@@ -34,23 +34,23 @@ defmodule Apiv3.AccountControllerTest do
     account = response["account"]
     assert account["id"]
     assert account["permalink"]
-    assert account["service_plan_id"] == @account_attr["service_plan_id"]
     assert account["timezone"] == @account_attr["timezone"]
     assert account["email"] == @account_attr["email"]
-    assert account["access_key_id"] == @account_attr["access_key_id"]
-    assert account["secret_access_key"] == @account_attr["secret_access_key"]
     assert account["region"] == @account_attr["region"]
   end
 
   test "after logging in, it should properly show the resource", %{conn: conn} do
-    {account, _} = %Account{} |> Account.changeset(@account_attr) |> AccountBuilder.build!
+    {account, _} = @account_attr |> AccountBuilder.virtual_changeset |> AccountBuilder.build!
     response = conn
     |> put_req_header("simwms-account-session", account.permalink)
     |> get(my_account_path(conn, :show))
     |> json_response(200)
     acct = response["account"]
+    plan = response["service_plan"]
     assert acct
     assert acct["id"] == account.id
+    assert acct["service_plan_id"] == plan["id"]
+    assert plan["simwms_name"] == @account_attr["service_plan_id"]
   end
 
   test "it should reject users without the account header", %{conn: conn} do

@@ -8,27 +8,29 @@ defmodule Apiv3.AccountBuilderTest do
     "email" => "test@test.test",
     "access_key_id" => "666hailsatan",
     "secret_access_key" => "ikitsu you na planetarium",
-    "region" => "Japan"
+    "region" => "Japan",
+    "owner_name" => "Jackson Davis"
   }
   test "the changeset should be valid" do
-    changeset = Account.changeset(%Account{}, @account_attr)
+    changeset = AccountBuilder.virtual_changeset(@account_attr)
     assert changeset.valid?
   end
 
   test "it should properly seed" do
-    changeset = Account.changeset(%Account{}, @account_attr)
-    {account, [tiles, appointments, batches, employees]} = AccountBuilder.build! changeset
+    changeset = AccountBuilder.virtual_changeset(@account_attr)
+    {account, [tiles, appointments, batches, employees, plans]} = AccountBuilder.build! changeset
     assert account.id
     assert account.permalink
     assert Enum.count(tiles) == 4
     assert Enum.count(appointments) == 2
     assert Enum.count(batches) == 3
     assert Enum.count(employees) == 1
+    assert Enum.count(plans) == 1
   end
 
   test "the seeds should be correct" do
-    changeset = Account.changeset(%Account{}, @account_attr)
-    {account, [tiles, appointments, batches, [employee]]} = AccountBuilder.build! changeset
+    changeset = AccountBuilder.virtual_changeset(@account_attr)
+    {account, [tiles, appointments, batches, [employee], [service_plan]]} = AccountBuilder.build! changeset
     [appointment|_] = appointments
     [dock, warehouse, scale, road] = tiles
     
@@ -45,6 +47,10 @@ defmodule Apiv3.AccountBuilderTest do
     end
 
     assert employee.email == account.email
-    assert employee.full_name == "Admin Manager"
+    assert employee.full_name == "Jackson Davis"
+
+    assert service_plan.service_plan_id == "test"
+    assert service_plan.simwms_name == "test"
+    assert service_plan.account_id == account.id
   end
 end

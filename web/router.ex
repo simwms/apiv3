@@ -44,6 +44,7 @@ defmodule Apiv3.Router do
     pipe_through :internal_api
     resources "/sanity", SanityController, only: [:show], singleton: true
     resources "/accounts", AccountController, only: [:create, :update]
+    resources "/service_plans", ServicePlanController, only: [:update]
   end
 
   scope "/apiv3", Apiv3 do

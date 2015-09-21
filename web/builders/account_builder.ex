@@ -1,16 +1,55 @@
 defmodule Apiv3.AccountBuilder do
+  use Apiv3.Web, :model
   use Pipe
   alias Apiv3.Account
   alias Apiv3.Repo
+
+  schema "aggregates: accounts service_plans tiles appointments batches employees" do
+    field :region, :string
+    field :access_key_id, :string
+    field :secret_access_key, :string
+    field :email, :string
+    field :service_plan_id, :string
+    field :timezone, :string
+    field :docks, :integer
+    field :warehouses, :integer
+    field :scales, :integer
+    field :employees, :integer
+    field :simwms_name, :string
+    field :owner_name, :string
+  end
+  @required_fields ~w(email service_plan_id timezone)
+  @optional_fields ~w(docks warehouses scales employees simwms_name owner_name region access_key_id secret_access_key)
+  def virtual_changeset(params) do
+    %__MODULE__{}
+    |> cast(params, @required_fields, @optional_fields)
+    |> validate_format(:email, ~r/@/)
+  end
   
+  @account_fields ~w(email service_plan_id timezone region access_key_id secret_access_key)a
+  defp account_changeset(changeset) do
+    params = changeset |> fetch_fields(@account_fields)
+    %Account{} |> Account.changeset(params)
+  end
+
+  defp fetch_fields(changeset, fields), do: changeset |> fetch_fields(fields, %{})
+  defp fetch_fields(_, [], p), do: p
+  defp fetch_fields(changeset, [field|fields], params) do
+    value = changeset |> get_field(field)
+    field = field |> Atom.to_string
+    params = params |> Dict.put(field, value)
+    fetch_fields(changeset, fields, params)
+  end
+
   def build!(changeset) do
-    account = changeset |> Repo.insert!
+    account = changeset |> account_changeset |> Repo.insert!
     pipe_with &state/2,
       {account, []}
       |> seed_tiles
       |> seed_appointments
       |> seed_batches
-      |> seed_employees
+      |> seed_employees(changeset)
+      |> seed_service_plan(changeset)
   end
 
   def state({account, seeds}=acc, f), do: {account, seeds ++ [f.(acc)]}
@@ -105,13 +144,25 @@ defmodule Apiv3.AccountBuilder do
     |> model_class.changeset(params)
   end
 
-  @employee_seeds [ %{ "full_name" => "Admin Manager", "role" => "admin_manager" } ]
-  def seed_employees({account, _}) do
-    @employee_seeds
-    pipe_with &Enum.map/2,
-      @employee_seeds
-      |> Dict.put("email", account.email)
-      |> build_changeset(account, :employees, Apiv3.Employee)
-      |> Repo.insert!
+  @employee_seed %{ "role" => "admin_manager" }
+  def seed_employees({account, _}, changeset) do
+    %{email: email} = account
+    full_name = (changeset |> get_field(:owner_name)) || "Admin Manager"
+    params = @employee_seed |> Dict.put("full_name", full_name) |> Dict.put("email", email)
+    employee = account 
+    |> build(:employees)
+    |> Apiv3.Employee.changeset(params)
+    |> Repo.insert!
+    [employee]
+  end
+
+  @service_plan_fields ~w(docks warehouses scales employees simwms_name service_plan_id)a
+  def seed_service_plan({account, _}, changeset) do
+    params = changeset |> fetch_fields(@service_plan_fields)
+    plan = account
+    |> build(:service_plan)
+    |> Apiv3.ServicePlan.changeset(params)
+    |> Repo.insert!
+    [plan]
   end
 end

@@ -18,7 +18,7 @@ defmodule Apiv3.Mixfile do
   def application do
     [mod: {Apiv3, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger,
-                    :phoenix_ecto, :postgrex, :fox, :timex, :tzdata]]
+                    :phoenix_ecto, :postgrex, :fox, :timex, :tzdata, :faker]]
   end
 
   # Specifies which paths to compile per environment
@@ -39,6 +39,7 @@ defmodule Apiv3.Mixfile do
      {:cors_plug, "~> 0.1.3"},
      {:timex, "~>0.19"},
      {:timex_ecto, "~> 0.5"},
-     {:pipe, "~> 0.0.2"}]
+     {:pipe, "~> 0.0.2"},
+     {:faker, "~> 0.5"}]
   end
 end

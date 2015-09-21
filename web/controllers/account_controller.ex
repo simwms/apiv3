@@ -6,12 +6,12 @@ defmodule Apiv3.AccountController do
   plug :scrub_params, "account" when action in [:create, :update]
 
   def show(conn, _params) do
-    account = conn |> current_account
+    account = conn |> current_account |> Repo.preload([:service_plan])
     render conn, "show.json", account: account
   end
 
   def create(conn, %{"account" => account_params}) do
-    changeset = Account.changeset(%Account{}, account_params)
+    changeset = AccountBuilder.virtual_changeset(account_params)
 
     if changeset.valid? do
       {account, _} = AccountBuilder.build!(changeset)
