@@ -4,14 +4,20 @@ defmodule Apiv3.Account do
   alias Fox.StringExt
   schema "accounts" do
     field :permalink, :string
-    field :service_plan_id, :string
     field :timezone, :string
     field :email, :string
     field :access_key_id, :string
     field :secret_access_key, :string
     field :region, :string
-    
-    has_one :service_plan, Apiv3.ServicePlan
+
+    field :company_name, :string
+    field :is_properly_setup, :boolean, default: false
+    belongs_to :user, Apiv3.User
+
+    has_one :payment_subscription, Apiv3.PaymentSubscription
+    has_one :service_plan, through: [:payment_subscription, :service_plan]
+    has_one :stripe_plan_id, through: [:service_plan, :stripe_plan_id]
+
     has_many :appointments, Apiv3.Appointment
     has_many :batches, Apiv3.Batch
     has_many :cameras, Apiv3.Camera
@@ -25,9 +31,12 @@ defmodule Apiv3.Account do
     timestamps
   end
   
-  @required_fields ~w(email service_plan_id timezone)
-  @optional_fields ~w(access_key_id secret_access_key region)
+  @required_fields ~w(email timezone company_name)
+  @optional_fields ~w(access_key_id secret_access_key region is_properly_setup)
 
+  def createset(model, params\\:empty) do
+    model |> cast(params, @required_fields)
+  end
   @doc """
   Creates a changeset based on the `model` and `params`.
 
@@ -41,9 +50,65 @@ defmodule Apiv3.Account do
 
   before_insert :punch_permalink
   def punch_permalink(changeset) do
+    email = changeset |> get_field(:email)
+    service_plan_id = changeset |> get_field(:service_plan_id)
+    timezone = changeset |> get_field(:timezone)
+    key = "#{email}-#{service_plan_id}-#{timezone}"
     {x,y,z} = :os.timestamp
-    w = RandomExt.uniform(99)
-    permalink = "#{z}-#{w}-#{StringExt.random(128)}-#{x}-#{y}"
+    salt = "#{x}-#{y}-#{z}"
+    
+    permalink = :sha256 |> :crypto.hmac(key, salt) |> Base.encode64
     changeset |> put_change(:permalink, permalink)
+  end
+
+  def get_service_plan(%{service_plan: %Apiv3.ServicePlan{}=plan}), do: plan
+  def get_service_plan(account) do
+    account |> assoc(:service_plan) |> Repo.one
+  end
+
+  def get_user(%{user: %Apiv3.User{}=user}), do: user
+  def get_user(account) do
+    account |> assoc(:user) |> Repo.one
+  end 
+
+  def increment_attempt!(%{setup_attempts: n}=account) do
+    account
+    |> change(setup_attempts: n + 1)
+    |> Repo.update!
+  end
+
+  def ensure_payment_subscription(account) do
+    case account.payment_subscription do
+      nil -> account |> Apiv3.PaymentSubscription.free_trial
+      payment_subscription when not is_nil(payment_subscription) -> payment_subscription
+    end
+  end
+
+  def synchronize_stripe(account) do
+    account = account |> Repo.preload(:user)
+    account.user |> Apiv3.User.synchronize_stripe
+    account
+  end
+
+  before_update :check_proper_setup
+  @doc """
+  If all the optional fields have values, then the account is properly setup
+  """
+  def check_proper_setup(changeset) do
+    x = changeset |> all_fields_present?
+    changeset |> put_change(:is_properly_setup, x)
+  end
+
+  defp all_fields_present?(changeset) do
+    @optional_fields
+    |> Enum.map(&String.to_existing_atom/1)
+    |> Enum.all?(&has_value?(changeset, &1))
+  end
+
+  defp has_value?(changeset, key) do
+    case changeset |> fetch_field(key) do
+      {_, x} when not is_nil x -> true
+      _ -> false
+    end
   end
 end

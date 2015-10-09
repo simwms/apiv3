@@ -3,60 +3,81 @@ defmodule Apiv3.AccountControllerTest do
   alias Apiv3.Repo
   alias Apiv3.Account
   alias Apiv3.AccountBuilder
-  @master_key Application.get_env(:simwms, :master_key)
-  @account_attr %{
-    "service_plan_id" => "test",
-    "timezone" => "Americas/Los_Angeles",
-    "email" => "test@test.test",
-    "access_key_id" => "666hailsatan",
-    "secret_access_key" => "ikitsu you na planetarium",
-    "region" => "Japan"
-  }
+  import Apiv3.SeedSupport
+
   setup do
-    conn = conn() |> put_req_header("accept", "application/json")
+    conn = conn()
+    |> put_req_header("accept", "application/json")
     {:ok, conn: conn}
   end
 
-  test "it should forbid requests without the master key", %{conn: conn} do
-    path = account_path(conn, :create)
-    assert path == "/internal/accounts"
-    response = conn 
-    |> post(path, %{})
+  test "no permission", %{conn: conn} do
+    path = conn |> account_path(:index)
+    response = conn
+    |> get(path, [])
     |> json_response(403)
-    assert response == %{"error" => "missing request master key"}
+
+    assert response == %{"error" => "user session not present"}
   end
 
-  test "it should successfully create accounts", %{conn: conn} do
-    response = conn
-    |> put_req_header("simwms-master-key", @master_key)
-    |> post(account_path(conn, :create), account: @account_attr)
+  @account_attr %{
+    "company_name" => "Some Test Co",
+    "timezone" => "Americas/Los_Angeles"
+  }
+  test "create", %{conn: conn} do
+    user = build_user
+    plan = build_service_plan
+    params = @account_attr |> Dict.put("service_plan_id", plan.id)
+    path = conn |> account_path(:create)
+    user_conn = conn
+    |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
+
+    account_conn = user_conn
+    |> post(path, account: params)
+
+    %{"account" => account} = account_conn
     |> json_response(200)
-    account = response["account"]
+
     assert account["id"]
-    assert account["permalink"]
-    assert account["timezone"] == @account_attr["timezone"]
-    assert account["email"] == @account_attr["email"]
-    assert account["region"] == @account_attr["region"]
   end
 
-  test "after logging in, it should properly show the resource", %{conn: conn} do
-    {account, _} = @account_attr |> AccountBuilder.virtual_changeset |> AccountBuilder.build!
-    response = conn
-    |> put_req_header("simwms-account-session", account.permalink)
-    |> get(my_account_path(conn, :show))
+  test "index", %{conn: conn} do
+    {account, _} = build_account
+    user = account |> assoc(:user) |> Repo.one!
+    path = conn |> account_path(:index)
+    %{"accounts" => accounts} = conn
+    |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
+    |> get(path, [])
     |> json_response(200)
-    acct = response["account"]
-    plan = response["service_plan"]
-    assert acct
-    assert acct["id"] == account.id
-    assert acct["service_plan_id"] == plan["id"]
-    assert plan["simwms_name"] == @account_attr["service_plan_id"]
+
+    assert Enum.count(accounts) == 1
+    [accnt] = accounts
+    assert accnt["id"] == account.id
   end
 
-  test "it should reject users without the account header", %{conn: conn} do
-    response = conn
-    |> get(my_account_path(conn, :show))
-    |> json_response(403)
-    assert response == %{"error" => "Not logged in"}
+  test "show", %{conn: conn} do
+    {account, _} = build_account
+    user = account |> assoc(:user) |> Repo.one!
+    path = conn |> account_path(:show, account.id)
+    %{"account" => acc} = conn
+    |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
+    |> get(path, [])
+    |> json_response(200)
+
+    assert acc["id"] == account.id
+    assert acc["permalink"] == account.permalink
+  end
+
+  test "update", %{conn: conn} do
+    {account, _} = build_account
+    user = account |> assoc(:user) |> Repo.one!
+    path = conn |> account_path(:update, account.id)
+    %{"account" => acc} = conn
+    |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
+    |> put(path, account: %{"company_name" => "Bill Engvall"})
+    |> json_response(200)
+
+    assert acc["id"] == account.id
+    assert acc["company_name"] == "Bill Engvall"
   end
 end

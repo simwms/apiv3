@@ -8,7 +8,7 @@ defmodule Apiv3.WeighticketControllerTest do
 
   test "index", %{conn: conn, account: account} do
     path = conn |> weighticket_path(:index)
-    assert path == "/apiv3/weightickets"
+    assert path == "/apiz/weightickets"
     response = conn
     |> get(path, %{})
     |> json_response(200)

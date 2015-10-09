@@ -4,29 +4,20 @@ defmodule Apiv3.SessionConnCase do
   using do
     quote do
       use Apiv3.ConnCase
-      alias Apiv3.AccountBuilder
-      @account_attr %{
-        "service_plan_id" => "test",
-        "timezone" => "Americas/Chicago",
-        "email" => "test@test.test",
-        "access_key_id" => "666hailsatan",
-        "secret_access_key" => "ikitsu you na planetarium",
-        "region" => "US East",
-        "owner_name" => "Velma Kelley"
-      }
+      import Apiv3.SeedSupport
       def account_session_conn do
-        {account, _} = build_account
-
-        conn = conn()
+        user = build_user
+        {account, _} = build_account(user)
+        anon_conn = conn()
         |> put_req_header("accept", "application/json")
+        path = anon_conn |> session_path(:create)
+
+        account_conn = anon_conn
+        |> post(path, session: %{"email" => user.email, "password" => "password123"})
+        |> ensure_recycled
         |> put_req_header("simwms-account-session", account.permalink)
-        {account, conn}
-      end
-      
-      def build_account do
-        @account_attr
-        |> AccountBuilder.virtual_changeset
-        |> AccountBuilder.build!
+
+        {account, account_conn}
       end
     end
   end

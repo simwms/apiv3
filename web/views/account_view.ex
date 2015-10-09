@@ -9,6 +9,8 @@ defmodule Apiv3.AccountView do
     case account.service_plan do
       %Ecto.Association.NotLoaded{} -> 
         %{account: render_one(account, "account.json")}
+      nil ->
+        %{account: render_one(account, "account.json")}
       service_plan ->
         %{account: render_one(account, "account.json"),
           service_plan: render_one(service_plan, Apiv3.ServicePlanView, "service_plan.json")}
@@ -22,6 +24,7 @@ defmodule Apiv3.AccountView do
   def ember_attributes(account) do
     %{
       id: account.id,
+      company_name: account.company_name,
       permalink: account.permalink,
       service_plan_id: just_id(account.service_plan),
       timezone: account.timezone,

@@ -1,5 +1,6 @@
 defmodule Apiv3.PictureBuilderTest do
   use Apiv3.ModelCase
+  import Apiv3.SeedSupport
   alias Apiv3.Account
   alias Apiv3.Employee
   alias Apiv3.PictureBuilder
@@ -9,24 +10,13 @@ defmodule Apiv3.PictureBuilderTest do
     "title" => "Cuckold Comedian"
   }
 
-  @account_attr %{
-    "service_plan_id" => "test",
-    "timezone" => "Americas/Los_Angeles",
-    "email" => "test@test.test",
-    "access_key_id" => "666hailsatan",
-    "secret_access_key" => "ikitsu you na planetarium",
-    "region" => "Japan"
-  }
-
   @picture_attr %{
     "assoc_type" => "employee",
     "location" => "https://s3.amazonaws.com/some-link.jpg"
   }
 
   test "the changeset should be valid" do
-    account = %Account{}
-    |> Account.changeset(@account_attr) 
-    |> Repo.insert!
+    {account, _} = build_account
 
     employee = account
     |> build(:employees)

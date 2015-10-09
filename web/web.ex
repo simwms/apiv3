@@ -31,7 +31,8 @@ defmodule Apiv3.Web do
       alias Apiv3.Repo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
-      import Apiv3.AccountSessionHelper, only: [current_account: 1]
+      import Apiv3.AccountSessionHelper, only: [current_account: 1, logout!: 1]
+      import Apiv3.UserSessionHelper, only: [current_user: 1, current_user!: 1]
       import Apiv3.Router.Helpers
     end
   end

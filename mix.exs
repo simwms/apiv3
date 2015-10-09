@@ -18,7 +18,9 @@ defmodule Apiv3.Mixfile do
   def application do
     [mod: {Apiv3, []},
      applications: [:phoenix, :phoenix_html, :cowboy, :logger,
-                    :phoenix_ecto, :postgrex, :fox, :timex, :tzdata, :faker]]
+                    :phoenix_ecto, :postgrex, :comeonin, :fox, 
+                    :cors_plug, :stripex, :gateway,
+                    :timex, :tzdata, :faker]]
   end
 
   # Specifies which paths to compile per environment
@@ -36,10 +38,13 @@ defmodule Apiv3.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:cowboy, "~> 1.0"},
      {:fox, "~> 0.1"},
+     {:comeonin, "~> 1.1"},
      {:cors_plug, "~> 0.1.3"},
      {:timex, "~>0.19"},
      {:timex_ecto, "~> 0.5"},
      {:pipe, "~> 0.0.2"},
-     {:faker, "~> 0.5"}]
+     {:faker, "~> 0.5"},
+     {:stripex, "~>0.1"},
+     {:gateway, "~>0.0.5"}]
   end
 end

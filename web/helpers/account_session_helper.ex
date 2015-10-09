@@ -11,7 +11,8 @@ defmodule Apiv3.AccountSessionHelper do
   end
 
   def current_account(conn) do
-    account_via_session(conn) || account_via_header(conn)
+    account_via_header(conn)
+    # account_via_session(conn) || 
   end
 
   defp account_via_session(conn) do
@@ -35,6 +36,11 @@ defmodule Apiv3.AccountSessionHelper do
   defp find_account_by_permalink(nil), do: nil
   defp find_account_by_permalink(permalink) do
     Repo.get_by(Account, permalink: permalink)
+  end
+
+  def logout!(conn) do
+    conn
+    |> delete_session(:current_account)
   end
 
   def affirm_account_session!(conn, %{id: id}) when not is_nil id do

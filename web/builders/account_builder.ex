@@ -3,56 +3,52 @@ defmodule Apiv3.AccountBuilder do
   use Pipe
   alias Apiv3.Account
   alias Apiv3.Repo
+  import Apiv3.EctoUtils
 
   schema "aggregates: accounts service_plans tiles appointments batches employees" do
-    field :region, :string
-    field :access_key_id, :string
-    field :secret_access_key, :string
-    field :email, :string
-    field :service_plan_id, :string
+    field :region, :string    
     field :timezone, :string
-    field :docks, :integer
-    field :warehouses, :integer
-    field :scales, :integer
-    field :employees, :integer
-    field :simwms_name, :string
-    field :owner_name, :string
+    field :user_id, :integer
+    field :service_plan_id, :integer
+    
+    field :company_name, :string
   end
-  @required_fields ~w(email service_plan_id timezone)
-  @optional_fields ~w(docks warehouses scales employees simwms_name owner_name region access_key_id secret_access_key)
+  @object_fields ~w(service_plan user)
+  @required_fields ~w(service_plan_id timezone company_name user_id)
+  @optional_fields ~w(region)
   def virtual_changeset(params) do
+    params = params |> id_object_cast(@object_fields)
     %__MODULE__{}
     |> cast(params, @required_fields, @optional_fields)
-    |> validate_format(:email, ~r/@/)
-  end
-  
-  @account_fields ~w(email service_plan_id timezone region access_key_id secret_access_key)a
-  defp account_changeset(changeset) do
-    params = changeset |> fetch_fields(@account_fields)
-    %Account{} |> Account.changeset(params)
   end
 
-  defp fetch_fields(changeset, fields), do: changeset |> fetch_fields(fields, %{})
-  defp fetch_fields(_, [], p), do: p
-  defp fetch_fields(changeset, [field|fields], params) do
-    value = changeset |> get_field(field)
-    field = field |> Atom.to_string
-    params = params |> Dict.put(field, value)
-    fetch_fields(changeset, fields, params)
+  @account_fields ~w(timezone region company_name)a
+  defp account_changeset(changeset) do
+    user = changeset |> get_field(:user_id) |> find!(Apiv3.User)
+    params = changeset 
+    |> fetch_fields(@account_fields)
+    |> Dict.put("email", user.email)
+
+    user
+    |> build(:accounts)
+    |> Account.changeset(params)
   end
 
   def build!(changeset) do
     account = changeset |> account_changeset |> Repo.insert!
-    pipe_with &state/2,
-      {account, []}
+    user = changeset |> get_field(:user_id) |> find!(Apiv3.User)
+    plan = changeset |> get_field(:service_plan_id) |> find!(Apiv3.ServicePlan)
+    {{a, _, _}, xs} = pipe_with &state/2,
+      {{account, user, plan}, []}
       |> seed_tiles
       |> seed_appointments
       |> seed_batches
       |> seed_employees(changeset)
-      |> seed_service_plan(changeset)
+      |> subscribe_to_service_plan(changeset)
+    {a, xs}
   end
 
-  def state({account, seeds}=acc, f), do: {account, seeds ++ [f.(acc)]}
+  def state({models, seeds}=acc, f), do: {models, seeds ++ [f.(acc)]}
 
   @tile_seeds [
     %{
@@ -85,7 +81,7 @@ defmodule Apiv3.AccountBuilder do
       "height" => 1.0
     }
   ]
-  def seed_tiles({account, []}) do
+  def seed_tiles({{account, _user, _plan}, []}) do
     pipe_with &Enum.map/2,
       @tile_seeds 
       |> build_changeset(account, :tiles, Apiv3.Tile)
@@ -105,7 +101,7 @@ defmodule Apiv3.AccountBuilder do
     "expected_at" => Ecto.DateTime.local,
     "fulfilled_at" => Ecto.DateTime.local
   }]
-  def seed_appointments({account, [_tiles]}) do
+  def seed_appointments({{account, _user, _plan}, [_tiles]}) do
     pipe_with &Enum.map/2,
       @appointment_seeds
       |> Dict.put("expected_at", Timex.Date.local)
@@ -127,7 +123,7 @@ defmodule Apiv3.AccountBuilder do
     "description" => "test batch",
     "quantity" => "some amount"
   }]
-  def seed_batches({account, [tiles, appointments]}) do
+  def seed_batches({{account, _user, _plan}, [tiles, appointments]}) do
     [dock, warehouse|_] = tiles
     [appointment|_] = appointments
     pipe_with &Enum.map/2,
@@ -139,16 +135,10 @@ defmodule Apiv3.AccountBuilder do
       |> Repo.insert!
   end
 
-  def build_changeset(params, account, relationship_key, model_class) do
-    Ecto.Model.build(account, relationship_key)
-    |> model_class.changeset(params)
-  end
-
   @employee_seed %{ "role" => "admin_manager" }
-  def seed_employees({account, _}, changeset) do
-    %{email: email} = account
-    full_name = (changeset |> get_field(:owner_name)) || "Admin Manager"
-    params = @employee_seed |> Dict.put("full_name", full_name) |> Dict.put("email", email)
+  def seed_employees({{account, user, _plan}, _}, changeset) do
+    %{email: email, username: name} = user
+    params = @employee_seed |> Dict.put("full_name", name) |> Dict.put("email", email)
     employee = account 
     |> build(:employees)
     |> Apiv3.Employee.changeset(params)
@@ -156,13 +146,11 @@ defmodule Apiv3.AccountBuilder do
     [employee]
   end
 
-  @service_plan_fields ~w(docks warehouses scales employees simwms_name service_plan_id)a
-  def seed_service_plan({account, _}, changeset) do
-    params = changeset |> fetch_fields(@service_plan_fields)
-    plan = account
-    |> build(:service_plan)
-    |> Apiv3.ServicePlan.changeset(params)
+  def subscribe_to_service_plan({{account, _user, plan}, _}, changeset) do
+    subscription = plan
+    |> build(:payment_subscriptions)
+    |> Apiv3.PaymentSubscription.changeset(%{"account_id" => account.id})
     |> Repo.insert!
-    [plan]
+    [subscription]
   end
 end

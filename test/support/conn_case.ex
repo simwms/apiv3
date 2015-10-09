@@ -19,7 +19,7 @@ defmodule Apiv3.ConnCase do
     quote do
       # Import conveniences for testing with connections
       use Phoenix.ConnTest
-
+      
       alias Apiv3.Repo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
