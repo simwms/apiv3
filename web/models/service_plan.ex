@@ -11,6 +11,7 @@ defmodule Apiv3.ServicePlan do
     field :monthly_price, :integer, default: 0
     field :description, :string
     field :presentation, :string
+    field :synced_with_stripe, :boolean, default: false
 
     has_many :payment_subscriptions, Apiv3.PaymentSubscription
     has_many :accounts, through: [:payment_subscriptions, :account]
@@ -18,7 +19,7 @@ defmodule Apiv3.ServicePlan do
   end
 
   @required_fields ~w(stripe_plan_id monthly_price)
-  @optional_fields ~w(docks employees warehouses scales simwms_name description presentation)
+  @optional_fields ~w(docks employees warehouses scales simwms_name description presentation synced_with_stripe)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -41,34 +42,7 @@ defmodule Apiv3.ServicePlan do
   end
 
   def free_trial do 
-    __MODULE__ |> Repo.get_by!(stripe_plan_id: "free-trial-seed") |> synchronize_stripe
+    __MODULE__ |> Repo.get_by!(stripe_plan_id: "free-trial-seed")
   end
 
-  def synchronize_stripe(service_plan) do
-    case service_plan.stripe_plan_id do
-      nil -> initialize_stripe(service_plan)
-      _ -> service_plan
-    end
-  end
-
-  defp initialize_stripe(service_plan) do
-    {:ok, stripe_plan} = find_or_create_stripe_plan service_plan
-
-    service_plan
-    |> changeset(%{"stripe_plan_id" => stripe_plan.id})
-    |> Repo.update!
-  end
-
-  defp find_or_create_stripe_plan(service_plan) do
-    case service_plan.permalink |> Stripex.Plans.retrieve do
-      {:error, %{status_code: 404}} -> 
-        Stripex.Plans.create id: service_plan.permalink,
-          amount: service_plan.monthly_price,
-          currency: "usd",
-          name: service_plan.presentation,
-          interval: "month",
-          statement_descriptor: "simwms cloud service"
-      {:ok, plan} -> {:ok, plan}
-    end
-  end
 end

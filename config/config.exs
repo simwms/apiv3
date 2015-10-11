@@ -24,6 +24,10 @@ config :logger, :console,
 config :simwms,
   master_key: "koudou ga yamu made soba ni iru nante tagaeru yakusoku ha sezu tada anata to itai"
 
+config :gateway, Stripex,
+  url: "https://api.stripe.com",
+  secret_key: "Bearer sk_test_GINswumlSKmkYRJ3lnno7Cqx"
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"

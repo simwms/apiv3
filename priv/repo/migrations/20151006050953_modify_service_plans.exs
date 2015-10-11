@@ -7,6 +7,7 @@ defmodule Apiv3.Repo.Migrations.ModifyServicePlans do
       add :monthly_price, :integer, default: 0
       add :description, :string
       add :presentation, :string
+      add :synced_with_stripe, :boolean, default: false
     end
     create index(:service_plans, [:stripe_plan_id])
   end

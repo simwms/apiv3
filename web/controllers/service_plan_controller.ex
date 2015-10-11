@@ -2,10 +2,10 @@ defmodule Apiv3.ServicePlanController do
   use Apiv3.Web, :controller
 
   alias Apiv3.ServicePlan
-
+  alias Apiv3.ServicePlanHarmonizer
+  alias Apiv3.Stargate
   def show(conn, %{"id" => id}) do
     service_plan = ServicePlan |> Repo.get!(id)
-
     conn
     |> render("show.json", service_plan: service_plan)
   end
@@ -17,14 +17,21 @@ defmodule Apiv3.ServicePlanController do
     |> render("index.json", service_plans: plans)
   end
 
+  defp harmonize(plan) do
+    plan 
+    |> ServicePlanHarmonizer.harmonize
+    |> Stargate.warp_sync
+    plan
+  end
+
   def create(conn, %{"service_plan" => params}) do
     changeset = ServicePlan.changeset(%ServicePlan{}, params)
 
     case Repo.insert(changeset) do
-      {:ok, plan} -> 
+      {:ok, plan} ->
         conn
         |> put_status(:created)
-        |> render("show.json", service_plan: plan)
+        |> render("show.json", service_plan: harmonize(plan))
       {:error, changeset} ->
         conn
         |> put_status(:unprocessable_entity)

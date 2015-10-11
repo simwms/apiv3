@@ -77,7 +77,7 @@ defmodule Apiv3.Router do
     pipe_through :apia
     resources "/cameras", CameraController, except: [:edit, :new]
     resources "/tiles", TileController, except: [:edit, :new]
-    resources "/payment_subscription", PaymentSubscriptionController, only: [:update, :delete, :show], singleton: true
+    resources "/payment_subscription", PaymentSubscriptionController, only: [:update, :show], singleton: true
     resources "/employees", EmployeeController, except: [:edit, :new]
   end
 

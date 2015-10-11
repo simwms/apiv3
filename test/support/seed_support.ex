@@ -17,9 +17,9 @@ defmodule Apiv3.SeedSupport do
       "password" => "password123"
     }
   end
-  def plan_attr do
+  def plan_attr(stripe_plan_id\\"free-trial-seed") do
    %{
-      "stripe_plan_id" => "seed-test",
+      "stripe_plan_id" => stripe_plan_id,
       "presentation" => "Test",
       "version" => "seed",
       "description" => "Test plan, should not be visible for selection",
@@ -36,7 +36,7 @@ defmodule Apiv3.SeedSupport do
   def build_user do
     %User{} |> User.changeset(user_attr) |> Repo.insert!
   end
-  def build_service_plan do
-    %ServicePlan{} |> ServicePlan.changeset(plan_attr) |> Repo.insert!
+  def build_service_plan(stripe_plan_id\\"free-trial-seed") do
+    %ServicePlan{} |> ServicePlan.changeset(plan_attr(stripe_plan_id)) |> Repo.insert!
   end
 end

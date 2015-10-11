@@ -12,7 +12,7 @@ defmodule Apiv3.PaymentSubscription do
   end
 
   @required_fields ~w(service_plan_id account_id)
-  @optional_fields ~w(stripe_subscription_id stripe_token)
+  @optional_fields ~w(stripe_subscription_id stripe_token token_already_consumed)
 
   @doc """
   Creates a changeset based on the `model` and `params`.
@@ -21,62 +21,26 @@ defmodule Apiv3.PaymentSubscription do
   with no validation performed.
   """
   def changeset(model, params \\ :empty) do
+    params = params |> rename_various_fields
     model
     |> cast(params, @required_fields, @optional_fields)
   end
 
-  def free_trial(account) do
-    account
-    |> Apiv3.Account.synchronize_stripe
-    |> find_or_create!(Apiv3.ServicePlan.free_trial)
+  @name_changes [{"source", "stripe_token"}]
+  defp rename_various_fields(params) do
+    rename_various_fields(params, @name_changes)
   end
 
-  def find(account, plan) do
-    __MODULE__ |> Repo.get_by(account_id: account.id, service_plan_id: plan.id)
-  end
-
-  def create(account, plan) do
-    %__MODULE__{}
-    |> changeset(%{"account_id" => account.id, "service_plan_id" => plan.id})
-    |> Repo.insert!
-  end
-
-  def find_or_create!(account, plan) do
-    find(account, plan) || create(account, plan)
-  end
-
-  def cancel_stripe!(subscription) do
-    %{stripe_customer_id: cus_id} = subscription.account.user
-    case subscription.stripe_subscription_id do
-      nil -> subscription
-      id -> 
-        {cus_id, id} |> Stripex.Subscriptions.delete
-        subscription
+  defp rename_various_fields(params, []), do: params
+  defp rename_various_fields(params, [{old_name, new_name}|changes]) do
+    case params |> Dict.pop(old_name) do
+      {nil, params} -> rename_various_fields(params, changes)
+      {value, params} ->
+        params
+        |> Dict.put(new_name, value)
+        |> rename_various_fields(changes)
     end
   end
 
-  def synchronize_stripe!(subscription) do
-    synchronize_stripe!(subscription, subscription.stripe_token)
-  end
-
-  def synchronize_stripe!(subscription, source) do
-    %{stripe_customer_id: cus_id} = subscription.account.user
-    params = subscription |> make_stripe_params(source)
-    case subscription.stripe_subscription_id do
-      nil ->
-        {:ok, stripe_subscription} = cus_id |> Stripex.Subscriptions.create(params)
-        subscription
-        |> changeset(%{"stripe_subscription_id" => stripe_subscription.id})
-        |> Repo.update!
-      id ->
-        {:ok, _} = {cus_id, id} |> Stripex.Subscriptions.update(params)
-        subscription
-    end
-  end
-
-  defp make_stripe_params(subscription, source) do
-    %{stripe_plan_id: plan} = subscription.service_plan |> Apiv3.ServicePlan.synchronize_stripe
-    metadata = %{"account_id" => subscription.account_id}
-    %{plan: plan, source: source, metadata: metadata}
-  end
+  
 end

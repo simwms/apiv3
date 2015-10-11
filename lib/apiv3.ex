@@ -5,6 +5,7 @@ defmodule Apiv3 do
   # for more information on OTP Applications
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
+    Stripex.start
 
     children = [
       # Start the endpoint when the application starts
@@ -13,6 +14,7 @@ defmodule Apiv3 do
       worker(Apiv3.Repo, []),
       # Here you could define other workers and supervisors as children
       # worker(Apiv3.Worker, [arg1, arg2, arg3]),
+      supervisor(Apiv3.Stargate.WarpSupervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

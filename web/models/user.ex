@@ -48,23 +48,4 @@ defmodule Apiv3.User do
     end
   end
   def process_params(p), do: p
-
-  def synchronize_stripe(user) do
-    case user.stripe_customer_id do
-      nil -> initialize_stripe(user)
-      _ -> user
-    end
-  end
-
-  defp initialize_stripe(user) do
-    {:ok, customer} = create_stripe_customer user
-    user
-    |> changeset(%{"stripe_customer_id" => customer.id})
-    |> Repo.update!
-  end
-
-  defp create_stripe_customer(user) do
-    metadata = %{ "username" => user.username, "id" => user.id }
-    Stripex.Customers.create email: user.email, metadata: metadata
-  end
 end
