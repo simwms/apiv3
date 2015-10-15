@@ -5,6 +5,15 @@ defmodule Apiv3.SessionController do
 
   plug :scrub_params, "session" when action in [:create, :update]
 
+  def show(conn, _) do
+    case conn |> current_user do
+      nil ->
+        conn |> send_resp(:unauthorized, "")
+      user ->
+        conn |> render("show.json", user: user)
+    end
+  end
+
   def create(conn, %{"session" => session_params}) do
     {conn, session} = conn |> Session.login!(session_params)
     if session.logged_in? do
@@ -14,7 +23,7 @@ defmodule Apiv3.SessionController do
     else
       conn
       |> put_status(:unprocessable_entity)
-      |> render(Apiv3.ChangesetView, "error.json", session: session)
+      |> render(Apiv3.ChangesetView, "error.json", changeset: session.errors)
     end
   end
 

@@ -3,6 +3,8 @@ defmodule Apiv3.UserSessionHelper do
   alias Apiv3.Repo
   alias Apiv3.User
   use Pipe
+  use Timex
+  import Ecto.Query, only: [from: 2]
 
   @type t :: %__MODULE__{
     logged_in?: boolean,
@@ -21,36 +23,54 @@ defmodule Apiv3.UserSessionHelper do
   end
 
   def current_user(conn) do
+    (conn |> user_from_session) || (conn |> user_from_header)
+  end
+
+  def user_from_header(conn) do
+    conn
+    |> get_req_header("simwms-user-session")
+    |> List.first
+    |> find_user_by_remember_token
+  end
+
+  def user_from_session(conn) do
     conn
     |> get_session(:current_user_id)
     |> find_user_by_id
   end
 
   def current_user!(conn) do
-    user_id = conn |> get_session(:current_user_id)
-    Repo.get!(User, user_id)
+    case conn |> current_user do
+      nil -> raise("Expected user to be logged in, but wasn't")
+      user -> user
+    end
   end
 
   def logout!(conn) do
-    conn
-    |> delete_session(:current_user_id)
+    conn |> current_user |> forget_me
+    conn |> delete_session(:current_user_id)
   end
 
   @spec login!(Conn, Map.t) :: {Conn, t}
   def login!(conn, params)do
     result = case find_user(params) do
       {:ok, user} -> authenticate(user, params)
-      {:no, message} -> {:no, message}
+      {:no, messages} -> {:no, messages}
+    end
+
+    result = case result do
+      {:ok, user} -> remember_me(user, params)
+      {:no, messages} -> {:no, messages}
     end
 
     case result do
       {:ok, user} -> conn |> success_session(user)
-      {:no, message} -> {conn, fail_session(message)}
+      {:no, messages} -> {conn, fail_session(messages)}
     end
   end
 
-  def fail_session(message) do
-    %__MODULE__{errors: [message]}
+  def fail_session(messages) do
+    %__MODULE__{errors: messages}
   end
 
   def success_session(conn, user) do
@@ -61,13 +81,36 @@ defmodule Apiv3.UserSessionHelper do
 
   def find_user(%{"email" => email}) when is_binary(email) do
     case User |> Repo.get_by(email: email) do
-      nil -> {:no, "no user with that email was found"}
+      nil -> {:no, %{email: "no such user"}}
       user -> {:ok, user}
     end
   end
 
+  def forget_me(nil), do: nil
+  def forget_me(user) do
+    user |> User.forget_me_changeset |> Repo.update!
+  end
+
+  def remember_me(user, %{"dont_remember_me" => true}) do
+    {:ok, user}
+  end
+
+  def remember_me(user, _) do
+    {:ok, user |> User.remember_me_changeset |> Repo.update! }
+  end
+
   def find_user(_) do
     {:no, "you need to provide an user login email"}
+  end
+
+  def find_user_by_remember_token(nil), do: nil
+  def find_user_by_remember_token(token) do
+    date = Date.now |> DateFormat.format!("{ISO}")
+    query = from u in User,
+      where: u.remember_token == ^token,
+      where: u.forget_at > ^date,
+      select: u
+    Repo.one query
   end
 
   def find_user_by_id(nil), do: nil
@@ -82,7 +125,7 @@ defmodule Apiv3.UserSessionHelper do
   def authenticate(user, %{"password" => password}) when is_binary(password) do
     case Comeonin.Bcrypt.checkpw(password, user.password_hash) do
       true -> {:ok, user}
-      _ -> {:no, "incorrect password"}
+      _ -> {:no, %{password: "wrong password"}}
     end
   end
 

@@ -105,7 +105,7 @@ defmodule Apiv3.Router do
     pipe_through :apix
     resources "/account_details", AccountDetailController, only: [:show]
     resources "/accounts", AccountController, only: [:create, :update, :index, :show]
-    resources "/sessions", SessionController, only: [:delete], singleton: true
+    resources "/session", SessionController, only: [:delete, :show], singleton: true
     resources "/sessions", SessionController, only: [:delete]
   end
 
@@ -114,7 +114,7 @@ defmodule Apiv3.Router do
   """
   scope "/api", Apiv3 do
     pipe_through :api
-    resources "/sessions", SessionController, only: [:create], singleton: true
+    resources "/session", SessionController, only: [:create], singleton: true
     resources "/users", UserController, only: [:create]
     resources "/service_plans", ServicePlanController, only: [:index, :show]    
   end

@@ -35,6 +35,22 @@ defmodule Apiv3.User do
     |> unique_constraint(:username)
   end
 
+  def remember_me_changeset(user) do
+    %{email: email, password_hash: pw} = user
+    key = "#{email}-#{pw}"
+    {x,y,z} = :os.timestamp
+    salt = "#{x}-#{y}-#{z}"
+    token = :sha256 |> :crypto.hmac(key, salt) |> Base.encode64
+    date = Timex.Date.now |> Timex.Date.shift(years: 5)
+
+    user
+    |> changeset(%{"remember_token" => token, "forget_at" => date})
+  end
+
+  def forget_me_changeset(user) do
+    user |> changeset(%{"forget_at" => Timex.Date.now})
+  end
+
   def process_params(%{"password" => _}=params) do
     case params |> Comeonin.create_user(@password_hash_opts) do
       {:ok, p} -> p 
