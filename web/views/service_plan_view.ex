@@ -18,6 +18,8 @@ defmodule Apiv3.ServicePlanView do
       id: plan.id,
       stripe_plan_id: plan.stripe_plan_id,
       simwms_name: plan.simwms_name,
+      description: plan.description,
+      presentation: plan.presentation,
       docks: plan.docks,
       warehouses: plan.warehouses,
       employees: plan.employees,

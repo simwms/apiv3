@@ -23,12 +23,12 @@ defmodule Apiv3.EmployeeControllerTest do
     "email" => "whatever@rac.ism",
     "full_name" => "Jackson Mississippi"
   }
-  test "show by email", %{conn: conn, account: account} do
+  test "show by id", %{conn: conn, account: account} do
     employee = account 
     |> build(:employees)
     |> Employee.changeset(@employee_params)
     |> Repo.insert!
-    path = conn |> employee_path(:show, employee.email)
+    path = conn |> employee_path(:show, employee.id)
     response = conn
     |> get(path, %{})
     |> json_response(200)

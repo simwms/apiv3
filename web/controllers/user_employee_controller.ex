@@ -1,24 +1,17 @@
-defmodule Apiv3.EmployeeController do
+defmodule Apiv3.UserEmployeeController do
   use Apiv3.Web, :controller
-
   alias Apiv3.EmployeeQuery, as: Q
   alias Apiv3.Employee
-
-  plug :scrub_params, "employee" when action in [:create, :update]
-  @preload_fields Q.preload_fields
-  use Apiv3.AutomagicControllerConvention, only: [:update, :delete]
   
-  def index(conn, params) do
-    employees = params 
-    |> Q.index(conn |> current_account)
-    |> Repo.all
+  plug :scrub_params, "employee" when action in [:create, :update]
+  
+  plug :put_view, Apiv3.EmployeeView
 
-    render(conn, "index.json", employees: employees)
-  end
+  @preload_fields Q.preload_fields
 
   def show(conn, %{"id" => id}) do
     employee = conn 
-    |> current_account
+    |> current_user
     |> assoc(:employees)
     |> Repo.get!(id)
 

@@ -51,18 +51,7 @@ defmodule Seeds do
     "deprecated_at" => Ecto.DateTime.utc,
     "monthly_price" => 0
   }
-  @free_trial_plan %{
-    "presentation" => "Free Trial",
-    "version" => "seed",
-    "description" => "Trial plan lets you try out the software on a small pretend warehouse.",
-    "monthly_price" => 0,
-    "docks" => 1,
-    "scales" => 1,
-    "warehouses" => 4,
-    "users" => 5,
-    "availability" => 18,
-    "appointments" => 10
-  }
+  
   @basic_plan %{
     "presentation" => "Small Business",
     "version" => "seed",
@@ -92,7 +81,7 @@ defmodule Seeds do
     "monthly_price" => 20000,
     "availability" => 24
   }
-  @seed_plans [@test_plan, @free_trial_plan, @basic_plan, @standard_plan, @enterprise_plan]
+  @seed_plans [@test_plan, @basic_plan, @standard_plan, @enterprise_plan]
   defp seed_service_plans do
     @seed_plans
     |> Enum.map(&seed_service_plan/1)

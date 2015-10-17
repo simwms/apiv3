@@ -6,7 +6,7 @@ defmodule Apiv3.AccountDetailController do
   """
   def show(conn, %{"id" => permalink}) do
     account = Account |> Repo.get_by!(permalink: permalink)
-    employee = conn |> current_user |> get_employee!(account)
+    employee = conn |> current_user! |> get_employee!(account)
     
     meta = account |> metacount(employee)
     render(conn, "show.json", account_detail: meta)
@@ -44,11 +44,11 @@ defmodule Apiv3.AccountDetailController do
       id: account.id,
       account_id: account.id,
       service_plan_id: service_plan.id,
-      employee_id: employee.id,
       employees: employees,
       docks: docks,
       warehouses: warehouses,
-      scales: scales
+      scales: scales,
+      employee: employee
     }
   end
 

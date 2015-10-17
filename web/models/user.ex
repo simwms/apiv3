@@ -40,7 +40,7 @@ defmodule Apiv3.User do
     key = "#{email}-#{pw}"
     {x,y,z} = :os.timestamp
     salt = "#{x}-#{y}-#{z}"
-    token = :sha256 |> :crypto.hmac(key, salt) |> Base.encode64
+    token = :sha256 |> :crypto.hmac(key, salt) |> Base.encode32
     date = Timex.Date.now |> Timex.Date.shift(years: 5)
 
     user

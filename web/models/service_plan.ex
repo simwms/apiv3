@@ -1,5 +1,7 @@
 defmodule Apiv3.ServicePlan do
   use Apiv3.Web, :model
+  alias Apiv3.ServicePlanHarmonizer, as: Harmonizer
+  alias Apiv3.Stargate
 
   schema "service_plans" do
     field :stripe_plan_id, :string
@@ -41,8 +43,35 @@ defmodule Apiv3.ServicePlan do
     end
   end
 
-  def free_trial do 
-    __MODULE__ |> Repo.get_by!(stripe_plan_id: "free-trial-seed")
+  @free_trial_plan %{
+    "stripe_plan_id" => "free-trial-seed",
+    "presentation" => "Free Trial",
+    "version" => "seed",
+    "description" => "Trial plan lets you try out the software on a small pretend warehouse.",
+    "monthly_price" => 0,
+    "docks" => 1,
+    "scales" => 1,
+    "warehouses" => 4,
+    "employees" => 5
+  }
+  def free_trial do
+    find_free_trial() || make_free_trial()
+  end
+
+  defp find_free_trial do
+    __MODULE__ |> Repo.get_by(stripe_plan_id: "free-trial-seed") 
+  end
+
+  defp make_free_trial do
+    plan = %__MODULE__{}
+    |> changeset(@free_trial_plan)
+    |> Repo.insert!
+
+    plan
+    |> Harmonizer.harmonize
+    |> Stargate.warp_sync
+
+    plan
   end
 
 end

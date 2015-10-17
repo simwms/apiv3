@@ -78,7 +78,7 @@ defmodule Apiv3.Router do
     resources "/cameras", CameraController, except: [:edit, :new]
     resources "/tiles", TileController, except: [:edit, :new]
     resources "/payment_subscription", PaymentSubscriptionController, only: [:update, :show], singleton: true
-    resources "/employees", EmployeeController, except: [:edit, :new]
+    resources "/employees", EmployeeController, only: [:show, :index, :update, :create, :delete]
   end
 
   @doc """
@@ -103,10 +103,11 @@ defmodule Apiv3.Router do
   """
   scope "/apix", Apiv3 do
     pipe_through :apix
+    resources "/employees", UserEmployeeController, only: [:show]
     resources "/account_details", AccountDetailController, only: [:show]
     resources "/accounts", AccountController, only: [:create, :update, :index, :show]
     resources "/session", SessionController, only: [:delete, :show], singleton: true
-    resources "/sessions", SessionController, only: [:delete]
+    resources "/sessions", SessionController, only: [:delete, :show]
   end
 
   @doc """
@@ -115,6 +116,7 @@ defmodule Apiv3.Router do
   scope "/api", Apiv3 do
     pipe_through :api
     resources "/session", SessionController, only: [:create], singleton: true
+    resources "/sessions", SessionController, only: [:create]
     resources "/users", UserController, only: [:create]
     resources "/service_plans", ServicePlanController, only: [:index, :show]    
   end

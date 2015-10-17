@@ -8,7 +8,7 @@ defmodule Apiv3.SessionController do
   def show(conn, _) do
     case conn |> current_user do
       nil ->
-        conn |> send_resp(:unauthorized, "")
+        conn |> send_resp(:unauthorized, "apparently not signed in")
       user ->
         conn |> render("show.json", user: user)
     end

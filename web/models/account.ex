@@ -57,7 +57,7 @@ defmodule Apiv3.Account do
     {x,y,z} = :os.timestamp
     salt = "#{x}-#{y}-#{z}"
     
-    permalink = :sha256 |> :crypto.hmac(key, salt) |> Base.encode64
+    permalink = :sha256 |> :crypto.hmac(key, salt) |> Base.encode32
     changeset |> put_change(:permalink, permalink)
   end
 

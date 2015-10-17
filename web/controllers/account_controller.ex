@@ -2,7 +2,7 @@ defmodule Apiv3.AccountController do
   use Apiv3.Web, :controller
   alias Apiv3.Account
   alias Apiv3.AccountBuilder
-
+  alias Apiv3.ServicePlan
   plug :scrub_params, "account" when action in [:create, :update]
 
   def show(conn, %{"id" => id}) do
@@ -22,7 +22,10 @@ defmodule Apiv3.AccountController do
   end
 
   def create(conn, %{"account" => account_params}) do
-    params = account_params |> Dict.put("user", conn |> current_user!)
+    params = account_params 
+    |> Dict.put("user", conn |> current_user!)
+    |> Dict.put_new("service_plan", ServicePlan.free_trial)
+
     changeset = AccountBuilder.virtual_changeset(params)
 
     if changeset.valid? do
