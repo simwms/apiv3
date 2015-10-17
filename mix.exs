@@ -45,6 +45,7 @@ defmodule Apiv3.Mixfile do
      {:pipe, "~> 0.0.2"},
      {:faker, "~> 0.5"},
      {:stripex, "~>0.1"},
-     {:gateway, "~>0.0.5"}]
+     {:gateway, "~>0.0.5"},
+     {:exrm, "~> 0.19.9"}]
   end
 end
