@@ -25,12 +25,12 @@ defmodule Apiv3.AccountDetailController do
     employees = query |> Repo.one!
 
     query = from x in assoc(account, :tiles),
-      where: x.tile_type == "barn",
+      where: x.tile_type == "dock" or x.tile_type == "barn",
       select: count(x.id)
     docks = query |> Repo.one!
 
     query = from x in assoc(account, :tiles),
-      where: x.tile_type == "warehouse",
+      where: x.tile_type == "cell" or x.tile_type == "warehouse",
       select: count(x.id)
     warehouses = query |> Repo.one!
 
@@ -40,10 +40,12 @@ defmodule Apiv3.AccountDetailController do
     scales = query |> Repo.one!
 
     service_plan = assoc(account, :service_plan) |> Repo.one!
+    payment_subscription = assoc(account, :payment_subscription) |> Repo.one!
     %{
-      id: account.id,
+      id: account.permalink,
       account_id: account.id,
       service_plan_id: service_plan.id,
+      payment_subscription_id: payment_subscription.id,
       employees: employees,
       docks: docks,
       warehouses: warehouses,

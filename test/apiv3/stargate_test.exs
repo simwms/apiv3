@@ -24,11 +24,11 @@ defmodule Apiv3.StargateTest do
   }
   test "warp_sync, with repo calls" do
     core = fn ->
-      %User{} |> User.changeset(@user_params) |> Repo.insert
+      User.createset(@user_params) |> Repo.insert
     end
     Stargate.warp_sync(core, self)
     
-    assert_receive {:try, core}
+    assert_receive {:try, _core}
     assert_receive {:done, {:ok, _}}, 500
   end
 end

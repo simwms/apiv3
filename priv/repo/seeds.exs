@@ -11,49 +11,25 @@
 # and so on) as they will fail if something goes wrong.
 
 defmodule Seeds do
+  alias Apiv3.ServicePlan
+  alias Apiv3.Repo
+  alias Apiv3.ServicePlanHarmonizer
   def plant do
-    user = seed_user
-    [plan|_] = seed_service_plans
-    seed_account(user, plan)
-  end
-
-  @seed_user %{
-    "email" => "seed-test-x13@test.co",
-    "username" => "seed test",
-    "password" => "1234567" }
-  defp seed_user do
-    %Core.User{}
-    |> Core.User.changeset(@seed_user)
-    |> Core.Repo.insert!
-  end
-
-  @seed_account %{
-    "company_name" => "Test Stage Co",
-    "email" => Faker.Internet.email,
-    "access_key_id" => "AKIAINYEM24JX5TX33LA",
-    "secret_access_key" => "xsDk65xnj/GCQS/KnyVL6wwDn3tAFg9nQ3pDncjD",
-    "timezone" => "America/Los_Angeles",
-    "region" => "Japan",
-    "owner_name" => Faker.Name.name
-  }
-  defp seed_account(user, plan) do
-    @seed_account
-    |> Dict.put("user", user)
-    |> Dict.put("service_plan", plan)
-    |> Apiv3.AccountBuilder.virtual_changeset
-    |> Apiv3.AccountBuilder.build!
+    seed_service_plans
   end
 
   @test_plan %{
     "presentation" => "Test",
+    "stripe_plan_id" => "test-seed",
     "version" => "seed",
     "description" => "Test plan, should not be visible for selection",
-    "deprecated_at" => Ecto.DateTime.utc,
+    "deprecated_at" => Timex.Date.local,
     "monthly_price" => 0
   }
   
   @basic_plan %{
     "presentation" => "Small Business",
+    "stripe_plan_id" => "basic-seed",
     "version" => "seed",
     "description" => "Basic plan is ideal for small warehouses with low traffic.",
     "monthly_price" => 5000,
@@ -62,20 +38,24 @@ defmodule Seeds do
     "warehouses" => 36,
     "users" => 10,
     "availability" => 24,
+    "employees" => 10,
     "appointments" => 25
   }
   @standard_plan %{
     "presentation" => "Average Medium",
+    "stripe_plan_id" => "standard-seed",
     "version" => "seed",
     "description" => "Standard plan for medium sized warehouses with high traffic.",
     "monthly_price" => 10000,
     "docks" => 10,
     "users" => 25,
     "availability" => 24,
+    "employees" => 25,
     "appointments" => 75
   }
   @enterprise_plan %{
     "presentation" => "Large Enterprise",
+    "stripe_plan_id" => "enterprise-seed",
     "version" => "seed",
     "description" => "Enterprise plan for large enterprise warehouses, no hard limits on anything.",
     "monthly_price" => 20000,
@@ -87,9 +67,20 @@ defmodule Seeds do
     |> Enum.map(&seed_service_plan/1)
   end
   defp seed_service_plan(seed) do
-    %Core.ServicePlan{}
-    |> Core.ServicePlan.changeset(seed)
-    |> Core.Repo.insert!
+    seed
+    |> find_or_create!
+    |> ServicePlanHarmonizer.synchronize_stripe
+  end
+
+  def find_or_create!(seed) do
+    %{"stripe_plan_id" => id} = seed
+    case ServicePlan |> Repo.get_by(stripe_plan_id: id) do
+      nil ->
+        %ServicePlan{}
+        |> ServicePlan.changeset(seed)
+        |> Repo.insert!
+      plan -> plan
+    end
   end
 
 end

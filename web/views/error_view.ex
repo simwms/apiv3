@@ -14,10 +14,10 @@ defmodule Apiv3.ErrorView do
   end
 
   def render("forbidden.json", %{msg: msg}) do
-    %{"error" => msg}
+    %{"errors" => %{"msg" => msg}}
   end
   def render("forbidden.json", _assigns) do
-    %{"error" => "yo, seriously not authorized"}
+    %{"errors" => %{"system" => "yo, seriously not authorized"} }
   end
 
   # In case no render clause matches or no

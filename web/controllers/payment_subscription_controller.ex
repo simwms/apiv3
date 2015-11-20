@@ -1,14 +1,15 @@
 defmodule Apiv3.PaymentSubscriptionController do
   use Apiv3.Web, :controller
   alias Apiv3.PaymentSubscription
-  alias Apiv3.ServicePlan
   alias Apiv3.PaymentSubscriptionHarmonizer, as: H
 
   plug :scrub_params, "payment_subscription" when action in [:update]
 
   def show(conn, _) do
-    subscription = conn |> get_subscription!
+    subscription = conn 
+    |> get_subscription!
     |> Repo.preload([:service_plan, account: :user])
+    |> synchronize_stripe!
     render(conn, "show.json", payment_subscription: subscription)
   end
 

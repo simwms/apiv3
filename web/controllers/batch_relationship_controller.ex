@@ -1,7 +1,6 @@
 defmodule Apiv3.BatchRelationshipController do
   use Apiv3.Web, :controller
 
-  alias Apiv3.BatchRelationship
   alias Apiv3.BatchRelationshipQuery
   alias Apiv3.BatchRelationshipBuilder
   plug :scrub_params, "batch_relationship" when action in [:create, :update]

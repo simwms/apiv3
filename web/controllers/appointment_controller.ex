@@ -1,7 +1,6 @@
 defmodule Apiv3.AppointmentController do
   use Apiv3.Web, :controller
 
-  alias Apiv3.Appointment
   alias Apiv3.AppointmentMeta
   alias Apiv3.AppointmentQuery
   plug :scrub_params, "appointment" when action in [:create, :update]

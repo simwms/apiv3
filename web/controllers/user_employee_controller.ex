@@ -1,7 +1,6 @@
 defmodule Apiv3.UserEmployeeController do
   use Apiv3.Web, :controller
   alias Apiv3.EmployeeQuery, as: Q
-  alias Apiv3.Employee
   
   plug :scrub_params, "employee" when action in [:create, :update]
   

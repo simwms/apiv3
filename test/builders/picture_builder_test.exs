@@ -1,7 +1,6 @@
 defmodule Apiv3.PictureBuilderTest do
   use Apiv3.ModelCase
   import Apiv3.SeedSupport
-  alias Apiv3.Account
   alias Apiv3.Employee
   alias Apiv3.PictureBuilder
   @employee_attr %{

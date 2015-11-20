@@ -8,7 +8,7 @@ defmodule Apiv3.ReportControllerTest do
     {:ok, conn: conn, account: account}
   end
   
-  test "index", %{conn: conn, account: account} do
+  test "index", %{conn: conn, account: _account} do
     path = conn |> report_path(:index)
     response = conn
     |> get(path, %{})

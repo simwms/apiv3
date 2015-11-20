@@ -14,14 +14,14 @@ defmodule Apiv3.ServicePlan do
     field :description, :string
     field :presentation, :string
     field :synced_with_stripe, :boolean, default: false
-
+    field :deprecated_at, Timex.Ecto.DateTime
     has_many :payment_subscriptions, Apiv3.PaymentSubscription
     has_many :accounts, through: [:payment_subscriptions, :account]
     timestamps
   end
 
   @required_fields ~w(stripe_plan_id monthly_price)
-  @optional_fields ~w(docks employees warehouses scales simwms_name description presentation synced_with_stripe)
+  @optional_fields ~w(docks employees warehouses scales simwms_name description presentation synced_with_stripe deprecated_at)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

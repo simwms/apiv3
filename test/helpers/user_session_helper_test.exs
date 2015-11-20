@@ -1,4 +1,4 @@
-defmodule Apiv3.SessionControllerTest do
+defmodule Apiv3.UserSessionHelperTest do
   use Apiv3.ConnCase
   alias Apiv3.User
   alias Apiv3.UserSessionHelper, as: Session
@@ -32,7 +32,7 @@ defmodule Apiv3.SessionControllerTest do
     assert user.remember_token
     assert user.forget_at > date
 
-    conn = conn |> Session.logout!
+    conn |> Session.logout!
     user = Repo.get!(User, user.id)
 
     assert user.forget_at <= Timex.Date.now

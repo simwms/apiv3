@@ -15,6 +15,6 @@ defmodule Apiv3.UserHarmonizerTest do
     |> Stargate.warp_sync(self)
 
     assert_receive {:try, _}
-    assert_receive {:done, %{stripe_customer_id: _}}, 1_000
+    assert_receive {:done, :ok}, 1_000
   end
 end

@@ -1,6 +1,5 @@
 defmodule Apiv3.CameraController do
   use Apiv3.Web, :controller
-  alias Apiv3.Camera
   plug :scrub_params, "camera" when action in [:create, :update]
 
   @preload_fields []

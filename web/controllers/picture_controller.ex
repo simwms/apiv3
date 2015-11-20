@@ -1,7 +1,6 @@
 defmodule Apiv3.PictureController do
   use Apiv3.Web, :controller
 
-  alias Apiv3.Picture
   alias Apiv3.PictureBuilder
 
   plug :scrub_params, "picture" when action in [:create, :update]

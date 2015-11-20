@@ -6,7 +6,7 @@ defmodule Apiv3.WeighticketControllerTest do
     {:ok, conn: conn, account: account}
   end
 
-  test "index", %{conn: conn, account: account} do
+  test "index", %{conn: conn, account: _account} do
     path = conn |> weighticket_path(:index)
     assert path == "/apiz/weightickets"
     response = conn

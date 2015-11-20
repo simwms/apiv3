@@ -9,7 +9,7 @@ defmodule Apiv3.Account do
     field :access_key_id, :string
     field :secret_access_key, :string
     field :region, :string
-
+    field :deleted_at, Timex.Ecto.DateTime
     field :company_name, :string
     field :is_properly_setup, :boolean, default: false
     belongs_to :user, Apiv3.User
@@ -28,11 +28,13 @@ defmodule Apiv3.Account do
     has_many :weightickets, Apiv3.Weighticket
     has_many :appointment_relationships, Apiv3.AppointmentRelationship
     has_many :batch_relationships, Apiv3.BatchRelationship
+    has_many :points, Apiv3.Point
+    has_many :lines, Apiv3.Line
     timestamps
   end
   
   @required_fields ~w(email timezone company_name)
-  @optional_fields ~w(access_key_id secret_access_key region is_properly_setup)
+  @optional_fields ~w(access_key_id secret_access_key region is_properly_setup deleted_at)
 
   def createset(model, params\\:empty) do
     model |> cast(params, @required_fields)

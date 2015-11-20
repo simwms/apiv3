@@ -33,13 +33,15 @@ defmodule Apiv3 do
   # Call this from iex -S mix phoenix.server to get login credentials
   def gimme_dev_credentials do
     import Ecto.Query, only: [from: 2]
-    query = from e in Apiv3.Employee, 
-      select: e, 
+    import Ecto.Model, only: [assoc: 2]
+    alias Apiv3.Repo
+    query = from a in Apiv3.Account, 
+      select: a, 
       limit: 1, 
-      order_by: [desc: e.id]
+      order_by: [desc: a.id]
   
-    employee = Apiv3.Repo.one! query
-    account = employee |> Ecto.Model.assoc(:account) |> Apiv3.Repo.one!
-    %{email: employee.email, token: account.permalink}
+    account = query |> Repo.one!
+    user = account |> assoc(:user) |> Repo.one!
+    %{email: user.email, user: user.remember_token, token: account.permalink}
   end
 end

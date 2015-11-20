@@ -9,7 +9,7 @@ defmodule Apiv3.UserSessionHelper do
   @type t :: %__MODULE__{
     logged_in?: boolean,
     user: User | nil,
-    errors: [String.t]
+    errors: [%{atom => String.t}]
   }
   defstruct logged_in?: false,
     user: nil,
@@ -47,7 +47,7 @@ defmodule Apiv3.UserSessionHelper do
   end
 
   def logout!(conn) do
-    conn |> current_user |> forget_me
+    # conn |> current_user |> forget_me
     conn |> delete_session(:current_user_id)
   end
 
@@ -85,6 +85,9 @@ defmodule Apiv3.UserSessionHelper do
       user -> {:ok, user}
     end
   end
+  def find_user(_) do
+    {:no, %{email: "you need to provide an user login email"}}
+  end
 
   def forget_me(nil), do: nil
   def forget_me(user) do
@@ -99,16 +102,12 @@ defmodule Apiv3.UserSessionHelper do
     {:ok, user |> User.remember_me_changeset |> Repo.update! }
   end
 
-  def find_user(_) do
-    {:no, "you need to provide an user login email"}
-  end
-
   def find_user_by_remember_token(nil), do: nil
   def find_user_by_remember_token(token) do
     date = Date.now |> DateFormat.format!("{ISO}")
     query = from u in User,
       where: u.remember_token == ^token,
-      where: u.forget_at > ^date,
+      where: is_nil(u.forget_at) or u.forget_at > ^date,
       select: u
     Repo.one query
   end
@@ -119,7 +118,7 @@ defmodule Apiv3.UserSessionHelper do
   end
 
   def authenticate(nil, _) do
-    {:no, "a database bug has occured, please try again in a moment"}
+    {:no, %{system: "a database bug has occured, please try again in a moment"}}
   end
 
   def authenticate(user, %{"password" => password}) when is_binary(password) do

@@ -1,8 +1,6 @@
 defmodule Apiv3.TruckController do
   use Apiv3.Web, :controller
 
-  alias Apiv3.Truck
-
   plug :scrub_params, "truck" when action in [:create, :update]
 
   @preload_fields [:appointment, :weighticket, :batches]

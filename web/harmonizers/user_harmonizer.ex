@@ -1,6 +1,7 @@
 defmodule Apiv3.UserHarmonizer do
   alias Apiv3.Repo
   alias Apiv3.User
+  alias Apiv3.BroadcastUtils
   @moduledoc """
   Harmonizers are used in synchronize local database data with
   remote services, case in point: Stripe
@@ -10,8 +11,12 @@ defmodule Apiv3.UserHarmonizer do
   """
   def harmonize(user) do
     fn ->
-      user |> synchronize_stripe
+      user |> synchronize_stripe |> broadcast_success
     end
+  end
+
+  def broadcast_success(user) do
+    BroadcastUtils.delta(user, user)
   end
 
   def synchronize_stripe(user) do

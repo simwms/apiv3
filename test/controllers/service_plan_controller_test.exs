@@ -1,7 +1,7 @@
 defmodule Apiv3.ServicePlanControllerTest do
   use Apiv3.SessionConnCase
   alias Apiv3.ServicePlan
-  @master_key Application.get_env(:simwms, :master_key)
+  @master_key Application.get_env(:apiv3, Apiv3.Endpoint)[:simwms_master_key]
 
   setup do
     conn = conn() |> put_req_header("accept", "application/json")

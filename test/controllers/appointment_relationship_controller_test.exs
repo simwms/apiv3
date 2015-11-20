@@ -37,7 +37,7 @@ defmodule Apiv3.AppointmentRelationshipControllerTest do
     assert relationship["account_id"] == account.id
   end
 
-  test "it should index", %{conn: conn, account: account} do
+  test "it should index", %{conn: conn, account: _} do
     path = conn |> appointment_relationship_path(:index)
     response = conn
     |> get(path, %{"dropoff_id" => 1942})

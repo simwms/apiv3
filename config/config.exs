@@ -11,6 +11,7 @@ config :apiv3, Apiv3.Endpoint,
   root: Path.dirname(__DIR__),
   secret_key_base: "Sf/gFdl9AfdXLJV+zyKYs7DOwOAy8N+YVSjNhFY29fMvyYB2Ox63M5a9ebN/5TF+",
   roxie_master_key: "furishikiru-ame-ni-mi-o-kakusu-you-ni-shite-odoru",
+  simwms_master_key: "fukai-nemuri-no-soko-de-osanai-hi-no-yume-wo-mite-ita",
   render_errors: [default_format: "html"],
   pubsub: [name: Apiv3.PubSub,
            adapter: Phoenix.PubSub.PG2]
@@ -21,8 +22,8 @@ config :logger, :console,
   metadata: [:request_id]
 
 # master_key:  System.get_env("SIMWMS_MASTER_KEY")
-config :simwms,
-  master_key: "koudou ga yamu made soba ni iru nante tagaeru yakusoku ha sezu tada anata to itai"
+# config :simwms,
+#   master_key: "koudou ga yamu made soba ni iru nante tagaeru yakusoku ha sezu tada anata to itai"
 
 config :gateway, Stripex,
   url: "https://api.stripe.com",

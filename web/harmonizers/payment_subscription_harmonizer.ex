@@ -5,8 +5,13 @@ defmodule Apiv3.PaymentSubscriptionHarmonizer do
 
   def harmonize(subscription) do
     fn ->
-      subscription |> sync_workflow
+      subscription |> sync_workflow |> broadcast_success
     end
+  end
+
+  def broadcast_success(subscription) do
+    user = subscription |> assoc(:user) |> Repo.one!
+    user |> Apiv3.BroadcastUtils.delta(subscription)
   end
 
   def already_synced?(%{token_already_consumed: true}), do: true

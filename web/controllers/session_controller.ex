@@ -28,7 +28,7 @@ defmodule Apiv3.SessionController do
   end
 
   def delete(conn, _) do
-    conn = conn 
+    conn 
     |> Session.logout!
     |> send_resp(:no_content, "")
   end

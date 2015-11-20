@@ -27,11 +27,16 @@ defmodule Apiv3.AccountView do
       company_name: account.company_name,
       permalink: account.permalink,
       service_plan_id: just_id(account.service_plan),
+      user_id: just_id(account.user),
       timezone: account.timezone,
       email: account.email,
+      username: account.user.username,
       access_key_id: account.access_key_id,
       secret_access_key: account.secret_access_key,
       roxie_key: Application.get_env(:apiv3, Apiv3.Endpoint)[:roxie_master_key],
+      is_properly_setup: account.payment_subscription.token_already_consumed,
+      deleted_at: account.deleted_at,
+      inserted_at: account.inserted_at,
       region: account.region
     }
   end

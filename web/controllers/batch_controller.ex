@@ -1,7 +1,6 @@
 defmodule Apiv3.BatchController do
   use Apiv3.Web, :controller
 
-  alias Apiv3.Batch
   alias Apiv3.BatchQuery
   plug :scrub_params, "batch" when action in [:create, :update]
 

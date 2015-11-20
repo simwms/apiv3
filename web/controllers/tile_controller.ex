@@ -1,6 +1,5 @@
 defmodule Apiv3.TileController do
   use Apiv3.Web, :controller
-  alias Apiv3.Tile
   alias Apiv3.TileQuery
 
   plug :scrub_params, "tile" when action in [:create, :update]

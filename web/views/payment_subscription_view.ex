@@ -22,6 +22,7 @@ defmodule Apiv3.PaymentSubscriptionView do
       service_plan_id: sub.service_plan_id,
       inserted_at: sub.inserted_at,
       updated_at: sub.updated_at,
-      token_already_consumed: sub.token_already_consumed }
+      token_already_consumed: sub.token_already_consumed,
+      is_synced: sub.token_already_consumed }
   end
 end

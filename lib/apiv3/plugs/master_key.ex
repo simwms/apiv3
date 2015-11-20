@@ -24,7 +24,7 @@ defmodule Apiv3.Plugs.MasterKey do
   end
 
   def master_key do
-    Application.get_env(:simwms, :master_key)
+    Application.get_env(:apiv3, Apiv3.Endpoint)[:simwms_master_key]
   end
 
   defp match_master_key?(request_key) do

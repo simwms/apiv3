@@ -52,6 +52,7 @@ defmodule Apiv3.TileView do
       tile_type: tile.tile_type,
       tile_name: tile.tile_name,
       status: tile.status,
+      a: tile.a,
       x: tile.x,
       y: tile.y,
       z: tile.z,

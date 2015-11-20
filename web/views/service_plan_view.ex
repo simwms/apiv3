@@ -24,7 +24,8 @@ defmodule Apiv3.ServicePlanView do
       warehouses: plan.warehouses,
       employees: plan.employees,
       scales: plan.scales,
-      monthly_price: plan.monthly_price
+      monthly_price: plan.monthly_price,
+      deprecated_at: plan.deprecated_at
     }
   end
 end

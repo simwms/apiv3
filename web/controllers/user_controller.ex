@@ -1,10 +1,9 @@
 defmodule Apiv3.UserController do
   use Apiv3.Web, :controller
-  alias Apiv3.Employee
   alias Apiv3.User
 
   def create(conn, %{"user" => user_params}) do
-    changeset = User.changeset(%User{}, user_params)
+    changeset = User.createset(user_params)
     case changeset |> Repo.insert do
       {:ok, user} ->
         conn

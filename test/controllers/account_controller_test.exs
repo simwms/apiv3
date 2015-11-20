@@ -2,7 +2,6 @@ defmodule Apiv3.AccountControllerTest do
   use Apiv3.ConnCase
   alias Apiv3.Repo
   alias Apiv3.Account
-  alias Apiv3.AccountBuilder
   import Apiv3.SeedSupport
 
   setup do
@@ -17,7 +16,7 @@ defmodule Apiv3.AccountControllerTest do
     |> get(path, [])
     |> json_response(403)
 
-    assert response == %{"error" => "user session not present"}
+    assert response == %{"errors" => %{"msg" => "user session not present"}}
   end
 
   @account_attr %{
@@ -66,6 +65,9 @@ defmodule Apiv3.AccountControllerTest do
 
     assert acc["id"] == account.id
     assert acc["permalink"] == account.permalink
+    assert acc["service_plan_id"]
+    assert acc["username"] == user.username
+    assert acc["inserted_at"]
   end
 
   test "update", %{conn: conn} do
@@ -79,5 +81,24 @@ defmodule Apiv3.AccountControllerTest do
 
     assert acc["id"] == account.id
     assert acc["company_name"] == "Bill Engvall"
+  end
+
+  test "delete", %{conn: conn} do
+    {account, _} = build_account
+    user = account |> assoc(:user) |> Repo.one!
+    path = conn |> account_path(:delete, account.id)
+    conn = conn
+    |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
+    |> delete(path, [])
+
+    account = Repo.get!(Account, account.id)
+    assert account.deleted_at
+
+    path = conn |> account_path(:index)
+    %{"accounts" => accounts} = conn
+    |> get(path, [])
+    |> json_response(200)
+
+    assert Enum.count(accounts) == 0
   end
 end

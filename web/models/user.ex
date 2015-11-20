@@ -4,6 +4,7 @@ defmodule Apiv3.User do
   schema "users" do
     field :email, :string
     field :username, :string
+    field :password, :string, virtual: true
     field :password_hash, :string
     field :recovery_hash, :string
     field :remember_token, :string
@@ -16,9 +17,10 @@ defmodule Apiv3.User do
     timestamps
   end
 
-  @required_fields ~w(email username password_hash)
+  @creation_fields ~w(email username password)
+  @updative_fields ~w(username)
   @optional_fields ~w(recovery_hash remember_token forget_at stripe_customer_id)
-  @password_hash_opts [min_length: 1, extra_chars: false]
+  @password_hash_opts [min_length: 1, extra_chars: false, common: false]
   @doc """
   Creates a changeset based on the `model` and `params`.
 
@@ -26,10 +28,22 @@ defmodule Apiv3.User do
   with no validation performed.
   """
   def changeset(model, params \\ :empty) do
-    params = params |> process_params
     model 
-    |> cast(params, @required_fields, @optional_fields)
+    |> cast(params, @updative_fields, @optional_fields)
+    |> unique_constraint(:username)
+  end
+
+  def password_reset(model, password) when is_binary(password) do
+    model
+    |> cast(%{"password" => password}, ["password"])
+    |> encrypt_password
+  end
+
+  def createset(params\\:empty) do
+    %__MODULE__{}
+    |> cast(params, @creation_fields, @optional_fields)
     |> validate_format(:email, ~r/@/)
+    |> validate_length(:password, min: @password_hash_opts[:min_length])
     |> update_change(:email, &String.downcase/1)
     |> unique_constraint(:email)
     |> unique_constraint(:username)
@@ -37,6 +51,32 @@ defmodule Apiv3.User do
 
   def remember_me_changeset(user) do
     %{email: email, password_hash: pw} = user
+    user |> remember_me_core(email, pw)    
+  end
+
+  def forget_me_changeset(user) do
+    user |> changeset(%{"forget_at" => Timex.Date.now})
+  end
+
+  before_insert :encrypt_password
+  def encrypt_password(changeset) do
+    {:ok, password_hash} = changeset
+    |> get_field(:password)
+    |> Comeonin.create_hash(@password_hash_opts)
+
+    changeset
+    |> put_change(:password_hash, password_hash)
+  end
+
+  before_insert :setup_remember_token
+  def setup_remember_token(changeset) do
+    {:changes, email} = changeset |> fetch_field(:email)
+    {:changes, hash} = changeset |> fetch_field(:password_hash)
+
+    changeset |> remember_me_core(email, hash)
+  end
+
+  def remember_me_core(user, email, pw) do
     key = "#{email}-#{pw}"
     {x,y,z} = :os.timestamp
     salt = "#{x}-#{y}-#{z}"
@@ -46,22 +86,4 @@ defmodule Apiv3.User do
     user
     |> changeset(%{"remember_token" => token, "forget_at" => date})
   end
-
-  def forget_me_changeset(user) do
-    user |> changeset(%{"forget_at" => Timex.Date.now})
-  end
-
-  def process_params(%{"password" => _}=params) do
-    case params |> Comeonin.create_user(@password_hash_opts) do
-      {:ok, p} -> p 
-      {:error, _} -> params
-    end
-  end
-  def process_params(%{password: _}=params) do
-    case params |> Comeonin.create_user(@password_hash_opts) do
-      {:ok, p} -> p 
-      {:error, _} -> params
-    end
-  end
-  def process_params(p), do: p
 end

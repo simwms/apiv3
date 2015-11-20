@@ -34,7 +34,7 @@ defmodule Apiv3.SeedSupport do
     |> AccountBuilder.build!
   end
   def build_user do
-    %User{} |> User.changeset(user_attr) |> Repo.insert!
+    user_attr |> User.createset |> Repo.insert!
   end
   def build_service_plan(stripe_plan_id\\"free-trial-seed") do
     %ServicePlan{} |> ServicePlan.changeset(plan_attr(stripe_plan_id)) |> Repo.insert!

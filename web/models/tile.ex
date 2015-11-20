@@ -5,8 +5,9 @@ defmodule Apiv3.Tile do
     field :tile_type, :string
     field :tile_name, :string
     field :status, :string
-    field :x, :integer
-    field :y, :integer
+    field :a, :decimal
+    field :x, :decimal
+    field :y, :decimal
     field :z, :integer
     field :width, :decimal
     field :height, :decimal
@@ -24,7 +25,7 @@ defmodule Apiv3.Tile do
   end
 
   @required_fields ~w(tile_type x y)
-  @optional_fields ~w(deleted_at tile_name status z width height)
+  @optional_fields ~w(deleted_at tile_name status z width height a)
 
   @doc """
   Creates a changeset based on the `model` and `params`.

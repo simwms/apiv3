@@ -1,6 +1,5 @@
 defmodule Apiv3.AccountBuilderTest do
   use Apiv3.ModelCase
-  alias Apiv3.Account
   alias Apiv3.AccountBuilder
   alias Apiv3.User
   alias Apiv3.ServicePlan
@@ -21,7 +20,7 @@ defmodule Apiv3.AccountBuilderTest do
     "monthly_price" => 0
   }
   setup do
-    user = %User{} |> User.changeset(@user_attr) |> Repo.insert!
+    user = User.createset(@user_attr) |> Repo.insert!
     plan = %ServicePlan{} |> ServicePlan.changeset(@plan_attr) |> Repo.insert!
     account_attr = @account_attr |> Dict.put("user", user) |> Dict.put("service_plan", plan)
     {:ok, user: user, plan: plan, account_attr: account_attr}

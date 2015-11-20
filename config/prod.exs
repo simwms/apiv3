@@ -58,12 +58,10 @@ config :logger, level: :info
 
 config :apiv3, Apiv3.Endpoint,
   secret_key_base: System.get_env("SECRET_BASE_KEY"),
-  roxie_master_key: System.get_env("ROXIE_MASTER_KEY")
+  roxie_master_key: System.get_env("ROXIE_MASTER_KEY"),
+  simwms_master_key: System.get_env("SIMWMS_MASTER_KEY")
 
 config :apiv3, Apiv3.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),
   pool_size: 20 # The amount of database connections in the pool
-
-config :simwms,
-  master_key: System.get_env("SIMWMS_MASTER_KEY")

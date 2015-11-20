@@ -53,7 +53,7 @@ defmodule Apiv3.AppointmentControllerTest do
     |> get(path, %{})
     |> json_response(403)
 
-    assert response == %{"error" => "not yours"}
+    assert response == %{"errors" => %{"msg" => "not yours"}}
   end
 
   test "it should show an appointment correctly", %{conn: conn, account: account} do
@@ -96,7 +96,7 @@ defmodule Apiv3.AppointmentControllerTest do
   test "it should properly delete", %{conn: conn, account: account} do
     [appointment|_] = assoc(account, :appointments) |> Repo.all
     path = conn |> appointment_path(:delete, appointment.id)
-    response = conn
+    conn
     |> delete(path, %{})
     |> json_response(200)
     refute Repo.get(Apiv3.Appointment, appointment.id)

@@ -2,7 +2,9 @@ defmodule Apiv3.AccountBuilder do
   use Apiv3.Web, :model
   use Pipe
   alias Apiv3.Account
+  alias Apiv3.PaymentSubscription
   alias Apiv3.Repo
+  alias Apiv3.ServicePlan
   import Apiv3.EctoUtils
 
   schema "aggregates: accounts service_plans tiles appointments batches employees" do
@@ -46,6 +48,21 @@ defmodule Apiv3.AccountBuilder do
       |> seed_employees(changeset)
       |> subscribe_to_service_plan(changeset)
     {a, xs}
+  end
+
+  def destroy!(account) do
+    %{id: id} = ServicePlan.free_trial
+    params = %{"token_already_consumed" => false, "service_plan_id" => id}
+    account 
+    |> assoc(:payment_subscription) 
+    |> Repo.one!
+    |> PaymentSubscription.changeset(params)
+    |> Repo.update!
+    |> Apiv3.PaymentSubscriptionController.synchronize_stripe!
+
+    account
+    |> Account.changeset(%{"deleted_at" => Timex.Date.local})
+    |> Repo.update!
   end
 
   def state({models, seeds}=acc, f), do: {models, seeds ++ [f.(acc)]}

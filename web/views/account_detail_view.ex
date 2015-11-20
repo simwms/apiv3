@@ -10,6 +10,7 @@ defmodule Apiv3.AccountDetailView do
       id: detail.id,
       account_id: detail.account_id,
       service_plan_id: detail.service_plan_id,
+      payment_subscription_id: detail.payment_subscription_id,
       employees: detail.employees,
       docks: detail.docks,
       warehouses: detail.warehouses,

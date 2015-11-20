@@ -10,14 +10,23 @@ defmodule Apiv3.ServicePlanController do
     |> render("show.json", service_plan: service_plan)
   end
 
-  def index(conn, _) do
+  def index(conn, %{"show" => "all"}) do
     plans = ServicePlan |> Repo.all
 
     conn
     |> render("index.json", service_plans: plans)
   end
+  def index(conn, _) do
+    query = from s in ServicePlan,
+      where: is_nil(s.deprecated_at),
+      order_by: [desc: s.id],
+      limit: 4
+    plans = query |> Repo.all
+    conn
+    |> render("index.json", service_plans: plans)
+  end
 
-  defp harmonize(plan) do
+  def harmonize(plan) do
     plan 
     |> ServicePlanHarmonizer.harmonize
     |> Stargate.warp_sync
