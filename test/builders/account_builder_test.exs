@@ -33,26 +33,28 @@ defmodule Apiv3.AccountBuilderTest do
 
   test "it should properly seed", %{account_attr: account_attr} do
     changeset = AccountBuilder.virtual_changeset(account_attr)
-    {account, [tiles, appointments, batches, employees, subscriptions]} = AccountBuilder.build! changeset
+    {account, [tiles, appointments, batches, employees, subscriptions, lines]} = AccountBuilder.build! changeset
     assert account.id
     assert account.permalink
-    assert Enum.count(tiles) == 4
+    assert Enum.count(tiles) == 11
     assert Enum.count(appointments) == 2
     assert Enum.count(batches) == 3
     assert Enum.count(employees) == 1
     assert Enum.count(subscriptions) == 1
+    assert Enum.count(lines) > 1
   end
 
   test "the seeds should be correct",  %{account_attr: account_attr, plan: plan} do
     changeset = AccountBuilder.virtual_changeset(account_attr)
-    {account, [tiles, appointments, batches, [employee], [subscription]]} = AccountBuilder.build! changeset
+    {account, [tiles, appointments, batches, [employee], [subscription], _]} = AccountBuilder.build! changeset
     [appointment|_] = appointments
-    [dock, warehouse, scale, road] = tiles
+    [dock, scale, entrance, exit_tile, warehouse] = tiles |> Enum.take(5)
     
-    assert dock.tile_type == "barn"
-    assert warehouse.tile_type == "warehouse"
+    assert dock.tile_type == "dock"
+    assert warehouse.tile_type == "cell"
     assert scale.tile_type == "scale"
-    assert road.tile_type == "road"
+    assert entrance.tile_type == "entrance"
+    assert exit_tile.tile_type == "exit"
 
     Enum.map batches, fn batch ->
       assert batch.account_id == account.id

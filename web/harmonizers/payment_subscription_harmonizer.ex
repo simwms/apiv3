@@ -43,11 +43,17 @@ defmodule Apiv3.PaymentSubscriptionHarmonizer do
   end
 
   defp make_stripe_params(subscription) do
-    %{stripe_plan_id: plan} = subscription |> assoc(:service_plan) |> Repo.one!
+    plan = subscription |> assoc(:service_plan) |> Repo.one!
     metadata = %{"account_id" => subscription.account_id}
-    %{plan: plan,
-      source: subscription.stripe_token,
-      metadata: metadata}
+
+    if plan.monthly_price > 0 do
+      %{plan: plan.stripe_plan_id,
+        source: subscription.stripe_token,
+        metadata: metadata}
+    else
+      %{plan: plan.stripe_plan_id,
+        metadata: metadata}
+    end
     |> Fox.DictExt.reject_blank_keys
   end
 end

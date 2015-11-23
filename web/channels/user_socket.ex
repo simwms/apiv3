@@ -2,7 +2,8 @@ defmodule Apiv3.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "rooms:*", Apiv3.RoomChannel
+  channel "accounts:*", Apiv3.AccountChannel
+  channel "users:*", Apiv3.UserChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
@@ -33,5 +34,5 @@ defmodule Apiv3.UserSocket do
   #     Apiv3.Endpoint.broadcast("users_socket:" <> user.id, "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(socket), do: "users_socket:#{socket.assigns.user_id}"
+  def id(socket), do: "user:#{socket.assigns.user_id}"
 end

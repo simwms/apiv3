@@ -47,6 +47,7 @@ defmodule Apiv3.AccountBuilder do
       |> seed_batches
       |> seed_employees(changeset)
       |> subscribe_to_service_plan(changeset)
+      |> seed_lines
     {a, xs}
   end
 
@@ -67,37 +68,73 @@ defmodule Apiv3.AccountBuilder do
 
   def state({models, seeds}=acc, f), do: {models, seeds ++ [f.(acc)]}
 
-  @tile_seeds [
-    %{
-      "tile_type" => "barn",
-      "x" => 2,
-      "y" => 2,
-      "width" => 1.0,
-      "height" => 1.0
-    },
-    %{
-      "tile_type" => "warehouse",
-      "x" => 2,
-      "y" => 3,
-      "width" => 1.0,
-      "height" => 1.0
-    },
-    %{
-      "tile_type" => "scale",
-      "tile_name" => "entrance scale",
-      "x" => 1,
-      "y" => 1,
-      "width" => 1.0,
-      "height" => 1.0
-    },
-    %{
-      "tile_type" => "road",
-      "x" => 1,
-      "y" => 2,
-      "width" => 1.0,
-      "height" => 1.0
-    }
-  ]
+  @tile_seeds [%{
+    "height" => 1, 
+    "tile_type" => "dock",
+    "width" => 1, 
+    "x" => 7, 
+    "y" => 2
+  },%{
+    "height" => 1, 
+    "tile_type" => "scale",
+    "width" => 1, 
+    "x" => 16, 
+    "y" => 2
+  },%{
+    "height" => 1, 
+    "tile_type" => "entrance",
+    "width" => 1, 
+    "x" => 0, 
+    "y" => 0
+  },%{
+    "height" => 1, 
+    "tile_type" => "exit",
+    "width" => 1, 
+    "x" => 19, 
+    "y" => 13
+  },%{
+    "height" => 1, 
+    "tile_type" => "cell",
+    "width" => 1, 
+    "x" => 6, 
+    "y" => 6
+  },%{
+    "height" => 1, 
+    "tile_type" => "cell",
+    "width" => 1, 
+    "x" => 6, 
+    "y" => 7
+  },%{
+    "height" => 1, 
+    "tile_type" => "cell",
+    "width" => 1, 
+    "x" => 7, 
+    "y" => 7
+  },%{
+    "height" => 1, 
+    "tile_type" => "cell",
+    "width" => 1, 
+    "x" => 7, 
+    "y" => 6
+  },%{
+    "height" => 1, 
+    "tile_type" => "desk",
+    "width" => 1, 
+    "x" => 15, 
+    "y" => 6
+  },%{
+    "height" => 1, 
+    "tile_type" => "desk",
+    "width" => 1, 
+    "x" => 15, 
+    "y" => 7
+  },%{
+    "height" => 1, 
+    "tile_type" => "desk",
+    "width" => 1, 
+    "x" => 15, 
+    "y" => 8
+  }]
   def seed_tiles({{account, _user, _plan}, []}) do
     pipe_with &Enum.map/2,
       @tile_seeds 
@@ -141,7 +178,7 @@ defmodule Apiv3.AccountBuilder do
     "quantity" => "some amount"
   }]
   def seed_batches({{account, _user, _plan}, [tiles, appointments]}) do
-    [dock, warehouse|_] = tiles
+    [dock, _, _, _, warehouse|_] = tiles
     [appointment|_] = appointments
     pipe_with &Enum.map/2,
       @batch_seeds
@@ -169,5 +206,63 @@ defmodule Apiv3.AccountBuilder do
     |> Apiv3.PaymentSubscription.changeset(%{"account_id" => account.id})
     |> Repo.insert!
     [subscription]
+  end
+
+  @line_seeds [%{ 
+    "line_type" => "road", 
+    "points" => "0,0 2,7",
+    "x" => 17, 
+    "y" => 1
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 0,-5",
+    "x" => 17, 
+    "y" => 10
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 3,0",
+    "x" => 14, 
+    "y" => 10
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 3,0",
+    "x" => 14, 
+    "y" => 5
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 0,7",
+    "x" => 14, 
+    "y" => 3
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 13,0",
+    "x" => 1, 
+    "y" => 10
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 0,7",
+    "x" => 1, 
+    "y" => 3
+  },%{ 
+    "line_type" => "wall", 
+    "points" => "0,0 13,0",
+    "x" => 1, 
+    "y" => 3
+  },%{ 
+    "line_type" => "road", 
+    "points" => "0,0 0,6",
+    "x" => 19, 
+    "y" => 8
+  },%{ 
+    "line_type" => "road", 
+    "points" => "0,0 17,0",
+    "x" => 0, 
+    "y" => 1
+  }]
+  def seed_lines({{account, _user, _plan}, _}) do
+    pipe_with &Enum.map/2,
+      @line_seeds 
+      |> build_changeset(account, :lines, Apiv3.Line)
+      |> Repo.insert!
   end
 end
