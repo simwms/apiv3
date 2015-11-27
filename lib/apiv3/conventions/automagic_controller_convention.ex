@@ -15,7 +15,9 @@ defmodule Apiv3.AutomagicControllerConvention do
 
         if changeset.valid? do
           model = Repo.insert!(changeset) |> Repo.preload(@preload_fields)
-          render(conn, "show.json", [{infer_model_key, model}])
+          conn
+          |> put_status(:created)
+          |> render("show.json", [{infer_model_key, model}])
         else
           conn
           |> put_status(:unprocessable_entity)

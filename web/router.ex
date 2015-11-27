@@ -57,8 +57,9 @@ defmodule Apiv3.Router do
   end
 
   scope "/print", Apiv3 do
-    pipe_through :secure_browser # Use the default browser stack
-    get "/reports", ReportController, :index
+    pipe_through :browser # Use the default browser stack
+
+    resources "/reports", ReportController, only: [:show]
   end
 
   @moduledoc """
@@ -100,6 +101,7 @@ defmodule Apiv3.Router do
     resources "/batch_relationships", BatchRelationshipController, except: [:edit, :new]
     resources "/appointment_relationships", AppointmentRelationshipController, except: [:edit, :new]
     resources "/pictures", PictureController, only: [:create]
+    resources "/reports", ReportController, only: [:create]
   end
 
   @moduledoc """

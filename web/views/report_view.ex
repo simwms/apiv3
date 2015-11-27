@@ -3,10 +3,18 @@ defmodule Apiv3.ReportView do
   import Fox.IntegerExt
   defdelegate count(xs), to: Enum
 
+  def render("show.json", %{report: report}) do
+    %{report: render_one(report, __MODULE__, "report.json")}
+  end
+
+  def render("report.json", %{report: report}) do
+    report |> reject_blank_keys
+  end
+
   def material_description(%{material_description: d}), do: d
 
   def storage_position(tile) do
-    "#{alphabetize(tile.x)}-#{tile.y}"
+    "#{tile.x}-#{tile.y}"
   end
 
   def appt_permalink(%{appointment: %{permalink: permalink}}) when is_binary(permalink) do

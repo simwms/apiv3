@@ -12,7 +12,7 @@ defmodule Apiv3.Plugs.UserSession do
       {false, _} ->
         conn
         |> put_status(:forbidden)
-        |> render(Apiv3.ErrorView, "forbidden.json", msg: "user session not present")
+        |> render(Apiv3.ErrorView, "forbidden.json", msg: "jh user session not present uh-oh")
         |> halt
     end
   end
