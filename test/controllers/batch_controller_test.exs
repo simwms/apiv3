@@ -12,10 +12,12 @@ defmodule Apiv3.BatchControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    batches = response["batches"]
+    batches = response["data"]
     assert Enum.count(batches) == 3
     Enum.map batches, fn batch -> 
-      assert batch["account_id"] == account.id
+      assert batch["id"]
+      assert batch["type"] == "batches"
+      assert batch["attributes"]["account_id"] == account.id
     end
   end
 end

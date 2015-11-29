@@ -15,14 +15,17 @@ defmodule Apiv3.TileControllerTest do
 
   test "it should ship with 4 default tiles", %{conn: conn, account: account} do
     path = conn |> tile_path(:index)
-    response = conn
+    %{"data" => tiles} = conn
     |> get(path, %{})
     |> json_response(200)
 
-    tiles = response["tiles"]
-    assert Enum.count(tiles) == 4
+    assert Enum.count(tiles) == 11
     Enum.map tiles, fn tile -> 
-      assert tile["account_id"] == account.id
+      assert tile["id"]
+      assert tile["type"] == "tiles"
+      assert tile["attributes"]["x"]
+      assert tile["attributes"]["y"]
+      assert tile["relationships"]["account"] == %{"data" => %{"id" => account.id, "type" => "accounts"} }
     end
   end
 
@@ -30,10 +33,16 @@ defmodule Apiv3.TileControllerTest do
     path = conn |> tile_path(:create)
     response = conn
     |> post(path, tile: @tile_attr)
-    |> json_response(200)
+    |> json_response(201)
 
-    tile = response["tile"]
+    tile = response["data"]
     assert tile["id"]
-    assert tile["account_id"] == account.id
+    assert tile["type"] == "tiles"
+    assert tile["attributes"]["x"] == to_string(@tile_attr["x"])
+    assert tile["attributes"]["y"] == to_string(@tile_attr["y"])
+    relationships = tile["relationships"]
+    assert Enum.count(relationships) == 6
+    %{"account" => account_relationship} = relationships
+    assert account_relationship == %{ "data" => %{"id" => account.id, "type" => "accounts"} }
   end
 end

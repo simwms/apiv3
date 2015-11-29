@@ -12,10 +12,10 @@ defmodule Apiv3.CameraControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    cameras = response["cameras"]
+    cameras = response["data"]
     assert Enum.count(cameras) == 0
     Enum.map cameras, fn camera -> 
-      assert camera["account_id"] == account.id
+      assert camera["attributes"]["account_id"] == account.id
     end
   end
 end

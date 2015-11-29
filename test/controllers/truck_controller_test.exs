@@ -12,10 +12,10 @@ defmodule Apiv3.TruckControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    trucks = response["trucks"]
+    trucks = response["data"]
     assert Enum.count(trucks) == 0
     Enum.map trucks, fn truck -> 
-      assert truck["account_id"] == account.id
+      assert truck["attributes"]["account_id"] == account.id
     end
   end
 end
