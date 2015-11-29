@@ -2,22 +2,12 @@ defmodule Apiv3.ReportControllerTest do
   use Apiv3.SessionConnCase
   alias Timex.Date
   alias Timex.DateFormat
-  alias Apiv3.ReportController
+
   setup do
     {account, conn} = account_session_conn()
     conn = conn
     |> put_req_header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
     {:ok, conn: conn, account: account}
-  end
-  
-  test "make_report" do
-    params = %{
-      account_id: 23423,
-      start_at: "dkfjalsdf",
-      finish_at: "3389308jd"
-    }
-    report = ReportController.make_report params
-    assert {:ok, _} = report
   end
 
   test "create and show", %{conn: conn, account: account} do
@@ -28,7 +18,7 @@ defmodule Apiv3.ReportControllerTest do
       "finish_at" => DateFormat.format!(date, "{ISO}")
     }
     %{"report" => report} = conn
-    |> post(path, params)
+    |> post(path, %{"report" => params})
     |> json_response(201)
 
     assert report["id"] 
@@ -37,8 +27,9 @@ defmodule Apiv3.ReportControllerTest do
     assert report["finish_at"] == params["finish_at"]
   
     path = conn |> report_path(:show, report["id"])
+    params = params |> Dict.put("account_id", account.id)
     response = conn
-    |> get(path, report)
+    |> get(path, params)
     |> html_response(200)
 
     assert response =~ "Appointment Summary"

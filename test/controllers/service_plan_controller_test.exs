@@ -20,30 +20,32 @@ defmodule Apiv3.ServicePlanControllerTest do
 
   test "create", %{conn: conn} do
     path = conn |> service_plan_path(:create)
-    %{"service_plan" => plan} = conn
+    %{"data" => plan} = conn
     |> put_req_header("simwms-master-key", @master_key)
     |> post(path, service_plan: @plan_params)
     |> json_response(201)
 
     assert plan["id"]
-    assert plan["stripe_plan_id"] == @plan_params["stripe_plan_id"]
-    assert plan["docks"] == @plan_params["docks"]
-    assert plan["warehouses"] == @plan_params["warehouses"]
-    assert plan["employees"] == @plan_params["employees"]
-    assert plan["scales"] == @plan_params["scales"]
-    assert plan["monthly_price"] == @plan_params["monthly_price"]
+    assert plan["type"] == "service_plans"
+    attrs = plan["attributes"]
+    assert attrs["stripe_plan_id"] == @plan_params["stripe_plan_id"]
+    assert attrs["docks"] == @plan_params["docks"]
+    assert attrs["warehouses"] == @plan_params["warehouses"]
+    assert attrs["employees"] == @plan_params["employees"]
+    assert attrs["scales"] == @plan_params["scales"]
+    assert attrs["monthly_price"] == @plan_params["monthly_price"]
   end
 
   test "update", %{conn: conn} do
     plan = ServicePlan.changeset(%ServicePlan{}, @plan_params) |> Repo.insert!
     path = conn |> service_plan_path(:update, plan.id)
-    %{"service_plan" => plan2} = conn
+    %{"data" => plan2} = conn
     |> put_req_header("simwms-master-key", @master_key)
     |> put(path, service_plan: %{"monthly_price" => 999})
     |> json_response(200)
 
     assert plan.id == plan2["id"]
-    assert plan2["monthly_price"] == 999
+    assert plan2["attributes"]["monthly_price"] == 999
   end
 
   test "delete", %{conn: conn} do
@@ -59,7 +61,7 @@ defmodule Apiv3.ServicePlanControllerTest do
   test "show", %{conn: conn} do
     plan = ServicePlan.changeset(%ServicePlan{}, @plan_params) |> Repo.insert!
     path = conn |> service_plan_path(:show, plan.id)
-    %{ "service_plan" => plan2 } = conn
+    %{ "data" => plan2 } = conn
     |> get(path, [])
     |> json_response(200)
 
@@ -69,7 +71,7 @@ defmodule Apiv3.ServicePlanControllerTest do
   test "index", %{conn: conn} do
     plan = ServicePlan.changeset(%ServicePlan{}, @plan_params) |> Repo.insert!
     path = conn |> service_plan_path(:index)
-    %{ "service_plans" => [plan2] } = conn
+    %{ "data" => [plan2] } = conn
     |> get(path, [])
     |> json_response(200)
 

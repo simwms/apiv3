@@ -30,6 +30,8 @@ defmodule Apiv3.Account do
     has_many :batch_relationships, Apiv3.BatchRelationship
     has_many :points, Apiv3.Point
     has_many :lines, Apiv3.Line
+
+    has_many :reports, Apiv3.Report
     timestamps
   end
   
