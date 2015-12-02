@@ -3,7 +3,7 @@ defmodule Apiv3.PaymentSubscriptionController do
   alias Apiv3.PaymentSubscription
   alias Apiv3.PaymentSubscriptionHarmonizer, as: H
 
-  plug :scrub_params, "payment_subscription" when action in [:update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "payment_subscription"] when action in [:update]
 
   def show(conn, _) do
     subscription = conn 

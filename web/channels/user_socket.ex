@@ -34,5 +34,5 @@ defmodule Apiv3.UserSocket do
   #     Apiv3.Endpoint.broadcast("users_socket:" <> user.id, "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
-  def id(socket), do: "user:#{socket.assigns.user_id}"
+  def id(socket), do: "users:#{socket.assigns.user_id}"
 end

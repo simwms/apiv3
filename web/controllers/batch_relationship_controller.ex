@@ -3,7 +3,7 @@ defmodule Apiv3.BatchRelationshipController do
 
   alias Apiv3.BatchRelationshipQuery
   alias Apiv3.BatchRelationshipBuilder
-  plug :scrub_params, "batch_relationship" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "batch_relationship"] when action in [:create, :update]
   use Apiv3.AutomagicControllerConvention
 
   @preload_fields BatchRelationshipQuery.preload_fields

@@ -17,14 +17,14 @@ defmodule Apiv3.ReportControllerTest do
       "start_at" => DateFormat.format!(date, "{ISO}"),
       "finish_at" => DateFormat.format!(date, "{ISO}")
     }
-    %{"report" => report} = conn
+    %{"data" => report} = conn
     |> post(path, %{"report" => params})
     |> json_response(201)
 
-    assert report["id"] 
-    assert report["account_id"] == account.id
-    assert report["start_at"] == params["start_at"]
-    assert report["finish_at"] == params["finish_at"]
+    assert %{"id" => _id, "type" => "reports", "relationships" => rels, "attributes" => attrs } = report
+    assert rels["account"]["data"]["id"] == account.id
+    assert attrs["start_at"] == params["start_at"]
+    assert attrs["finish_at"] == params["finish_at"]
   
     path = conn |> report_path(:show, report["id"])
     params = params |> Dict.put("account_id", account.id)

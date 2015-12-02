@@ -13,7 +13,7 @@ defmodule Apiv3.WeighticketControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    weightickets = response["weightickets"]
+    weightickets = response["data"]
     assert Enum.count(weightickets) == 0
     
   end

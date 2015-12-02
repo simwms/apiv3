@@ -2,7 +2,7 @@ defmodule Apiv3.BatchController do
   use Apiv3.Web, :controller
 
   alias Apiv3.BatchQuery
-  plug :scrub_params, "batch" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "batch"] when action in [:create, :update]
 
   @preload_fields BatchQuery.preload_fields
   use Apiv3.AutomagicControllerConvention

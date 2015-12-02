@@ -2,7 +2,7 @@ defmodule Apiv3.TileController do
   use Apiv3.Web, :controller
   alias Apiv3.TileQuery
 
-  plug :scrub_params, "tile" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "tile"] when action in [:create, :update]
 
   @preload_fields TileQuery.preload_fields
   use Apiv3.AutomagicControllerConvention

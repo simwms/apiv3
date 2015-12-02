@@ -3,12 +3,23 @@ defmodule Apiv3.ReportView do
   import Fox.IntegerExt
   defdelegate count(xs), to: Enum
 
+  @attributes ~w(start_at finish_at)a
+  
   def render("show.json", %{report: report}) do
-    %{report: render_one(report, __MODULE__, "report.json")}
+    %{data: render_one(report, __MODULE__, "report.json")}
   end
 
   def render("report.json", %{report: report}) do
-    report |> reject_blank_keys
+    %{
+      id: report.id,
+      type: "reports",
+      attributes: report |> Map.take(@attributes) |> reject_blank_keys,
+      relationships: %{ 
+        account: %{
+          data: %{ id: report |> Map.get(:account_id), type: "accounts"} 
+        }
+      } 
+    }
   end
 
   def material_description(%{material_description: d}), do: d

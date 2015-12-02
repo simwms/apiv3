@@ -7,21 +7,26 @@ defmodule Apiv3.AutomagicControllerConvention do
       alias Apiv3.Repo
 
       def create(conn, params) do
-        make_params = params |> Dict.fetch! infer_model_key |> Atom.to_string
-        changeset = conn
+        make_params = params 
+        |> Apiv3.ChangesetUtils.activemodel_paramify 
+        || params 
+        |> Dict.fetch!(infer_model_key |> Atom.to_string)
+
+        conn
         |> current_account
         |> build(infer_collection_key)
         |> infer_model_module.changeset(make_params)
-
-        if changeset.valid? do
-          model = Repo.insert!(changeset) |> Repo.preload(@preload_fields)
-          conn
-          |> put_status(:created)
-          |> render("show.json", [{infer_model_key, model}])
-        else
-          conn
-          |> put_status(:unprocessable_entity)
-          |> render(Apiv3.ChangesetView, "error.json", changeset: changeset)
+        |> Repo.insert
+        |> case do
+          {:ok, model} ->
+            model = model |> Repo.preload(@preload_fields)
+            conn
+            |> put_status(:created)
+            |> render("show.json", [{infer_model_key, model}])
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(Apiv3.ChangesetView, "error.json", changeset: changeset)
         end
       end
 
@@ -31,23 +36,26 @@ defmodule Apiv3.AutomagicControllerConvention do
       end
 
       def delete(conn, %{"model" => model}) do
-        model = model
-        |> Repo.delete!
-        |> Repo.preload(@preload_fields)
-        render(conn, "show.json", [{infer_model_key, model}])
+        model |> Repo.delete!
+        send_resp(conn, :no_content, "")
       end
 
       def update(conn, %{"model" => model}=params) do
-        change_params = params |> Dict.fetch! infer_model_key |> Atom.to_string
-        changeset = model |> infer_model_module.changeset(change_params)
-
-        if changeset.valid? do
-          model = changeset |> Repo.update! |> Repo.preload(@preload_fields)
-          conn |> render("show.json", [{infer_model_key, model}])
-        else
-          conn
-          |> put_status(:unprocessable_entity)
-          |> render(Apiv3.ChangesetView, "error.json", changeset: changeset)
+        change_params = params 
+        |> Apiv3.ChangesetUtils.activemodel_paramify
+        || params
+        |> Dict.fetch!(infer_model_key |> Atom.to_string)
+        model 
+        |> infer_model_module.changeset(change_params)
+        |> Repo.update
+        |> case do
+          {:ok, model} ->
+            model = model |> Repo.preload(@preload_fields)
+            conn |> render("show.json", [{infer_model_key, model}])
+          {:error, changeset} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> render(Apiv3.ChangesetView, "error.json", changeset: changeset) 
         end
       end
 

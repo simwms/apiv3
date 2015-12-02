@@ -3,7 +3,7 @@ defmodule Apiv3.EmployeeController do
 
   alias Apiv3.EmployeeQuery, as: Q
 
-  plug :scrub_params, "employee" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "employee"] when action in [:create, :update]
   @preload_fields Q.preload_fields
   use Apiv3.AutomagicControllerConvention, only: [:update, :delete]
   

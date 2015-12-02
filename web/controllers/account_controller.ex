@@ -3,7 +3,7 @@ defmodule Apiv3.AccountController do
   alias Apiv3.Account
   alias Apiv3.AccountBuilder
   alias Apiv3.ServicePlan
-  plug :scrub_params, "account" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "account"] when action in [:create, :update]
 
   def show(conn, %{"id" => id}) do
     account = conn 

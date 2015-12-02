@@ -16,14 +16,17 @@ defmodule Apiv3.PointControllerTest do
     path = conn |> point_path(:create)
     response = conn
     |> post(path, point: @point_attr)
-    |> json_response(200)
+    |> json_response(201)
 
-    point = response["point"]
+    point = response["data"]
     assert point["id"]
-    assert point["account_id"] == account.id
-    assert point["x"] == "8"
-    assert point["y"] == "81"
-    assert point["point_name"] == "Percy Pennyworth"
-    assert point["point_type"] == "road"
+
+    attrs = point["attributes"]
+    assert attrs["x"] == "8"
+    assert attrs["y"] == "81"
+    assert attrs["point_name"] == "Percy Pennyworth"
+    assert attrs["point_type"] == "road"
+
+    assert point["relationships"]["account"]["data"]["id"] == account.id
   end
 end

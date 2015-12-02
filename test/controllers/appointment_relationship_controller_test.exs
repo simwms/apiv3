@@ -26,15 +26,17 @@ defmodule Apiv3.AppointmentRelationshipControllerTest do
       "pickup_id" => pickup.id
     }
     path = conn |> appointment_relationship_path(:create)
-    %{"appointment_relationship" => relationship} = conn
+    %{"data" => relationship} = conn
     |> post(path, appointment_relationship: params)
-    |> json_response(200)
+    |> json_response(201)
 
     assert relationship
     assert relationship["id"]
-    assert relationship["dropoff_id"] == dropoff.id
-    assert relationship["pickup_id"] == pickup.id
-    assert relationship["account_id"] == account.id
+    assert relationship["type"] == "appointment_relationships"
+    rel = relationship["relationships"]
+    assert rel["dropoff"]["data"]["id"] == dropoff.id
+    assert rel["pickup"]["data"]["id"] == pickup.id
+    assert rel["account"]["data"]["id"] == account.id
   end
 
   test "it should index", %{conn: conn, account: _} do
@@ -43,6 +45,6 @@ defmodule Apiv3.AppointmentRelationshipControllerTest do
     |> get(path, %{"dropoff_id" => 1942})
     |> json_response(200)
 
-    assert response == %{"appointment_relationships" => [], "appointments" => []}
+    assert response == %{"data" => []}
   end
 end

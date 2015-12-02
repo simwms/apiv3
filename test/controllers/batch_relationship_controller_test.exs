@@ -27,21 +27,23 @@ defmodule Apiv3.BatchRelationshipControllerTest do
       "appointment_id" => pickup.id
     }
     path = conn |> batch_relationship_path(:create)
-    %{"batch_relationship" => br} = conn
+    %{"data" => br} = conn
     |> post(path, batch_relationship: params)
     |> json_response(200)
 
     assert br
     assert br["id"]
-    assert br["batch_id"] == batch.id
-    assert br["appointment_id"] == pickup.id
-    assert br["account_id"] == account.id
+    assert br["type"] == "batch_relationships"
+    rels = br["relationships"]
+    assert rels["batch"]["data"]["id"] == batch.id
+    assert rels["appointment"]["data"]["id"] == pickup.id
+    assert rels["account"]["data"]["id"] == account.id
 
     batch = Repo.get!(Batch, batch.id)
     assert batch.outgoing_count == 1
 
     path = conn |> batch_relationship_path(:delete, br["id"])
-    %{"batch_relationship" => br} = conn
+    %{"data" => br} = conn
     |> delete(path, %{})
     |> json_response(200)
 
@@ -54,7 +56,7 @@ defmodule Apiv3.BatchRelationshipControllerTest do
 
   test "index", %{conn: conn} do
     path = conn |> batch_relationship_path(:index)
-    %{"batch_relationships" => brs} = conn
+    %{"data" => brs} = conn
     |> get(path, %{})
     |> json_response(200)
 

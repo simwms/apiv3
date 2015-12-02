@@ -1,6 +1,6 @@
 defmodule Apiv3.CameraController do
   use Apiv3.Web, :controller
-  plug :scrub_params, "camera" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "camera"] when action in [:create, :update]
 
   @preload_fields []
   use Apiv3.AutomagicControllerConvention

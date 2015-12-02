@@ -16,7 +16,7 @@ defmodule Apiv3.AccountControllerTest do
     |> get(path, [])
     |> json_response(403)
 
-    assert response == %{"errors" => %{"msg" => "user session not present"}}
+    assert response == %{"errors" => %{"msg" => "jh user session not present uh-oh"}}
   end
 
   @account_attr %{
@@ -34,7 +34,7 @@ defmodule Apiv3.AccountControllerTest do
     account_conn = user_conn
     |> post(path, account: params)
 
-    %{"account" => account} = account_conn
+    %{"data" => account} = account_conn
     |> json_response(200)
 
     assert account["id"]
@@ -44,7 +44,7 @@ defmodule Apiv3.AccountControllerTest do
     {account, _} = build_account
     user = account |> assoc(:user) |> Repo.one!
     path = conn |> account_path(:index)
-    %{"accounts" => accounts} = conn
+    %{"data" => accounts} = conn
     |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
     |> get(path, [])
     |> json_response(200)
@@ -58,29 +58,32 @@ defmodule Apiv3.AccountControllerTest do
     {account, _} = build_account
     user = account |> assoc(:user) |> Repo.one!
     path = conn |> account_path(:show, account.id)
-    %{"account" => acc} = conn
+    %{"data" => acc} = conn
     |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
     |> get(path, [])
     |> json_response(200)
 
     assert acc["id"] == account.id
-    assert acc["permalink"] == account.permalink
-    assert acc["service_plan_id"]
-    assert acc["username"] == user.username
-    assert acc["inserted_at"]
+    attr = acc["attributes"]
+    assert attr["permalink"] == account.permalink
+    assert attr["email"] == user.email
+    assert attr["inserted_at"]
+
+    rel = acc["relationships"]
+    assert %{"data" => %{ "id" => _, "type" => "service_plans" } } = rel["service_plan"]
   end
 
   test "update", %{conn: conn} do
     {account, _} = build_account
     user = account |> assoc(:user) |> Repo.one!
     path = conn |> account_path(:update, account.id)
-    %{"account" => acc} = conn
+    %{"data" => acc} = conn
     |> post(session_path(conn, :create), session: %{"email" => user.email, "password" => "password123"})
     |> put(path, account: %{"company_name" => "Bill Engvall"})
     |> json_response(200)
 
     assert acc["id"] == account.id
-    assert acc["company_name"] == "Bill Engvall"
+    assert acc["attributes"]["company_name"] == "Bill Engvall"
   end
 
   test "delete", %{conn: conn} do
@@ -95,7 +98,7 @@ defmodule Apiv3.AccountControllerTest do
     assert account.deleted_at
 
     path = conn |> account_path(:index)
-    %{"accounts" => accounts} = conn
+    %{"data" => accounts} = conn
     |> get(path, [])
     |> json_response(200)
 

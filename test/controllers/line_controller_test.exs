@@ -17,15 +17,20 @@ defmodule Apiv3.LineControllerTest do
     path = conn |> line_path(:create)
     response = conn
     |> post(path, line: @line_attr)
-    |> json_response(200)
+    |> json_response(201)
 
-    line = response["line"]
+    %{ "data" => line } = response
     assert line["id"]
-    assert line["account_id"] == account.id
-    assert line["x"] == "8"
-    assert line["y"] == "81"
-    assert line["points"] == @line_attr["points"]
-    assert line["line_name"] == "Percy Pennyworth"
-    assert line["line_type"] == "road"
+    assert line["type"] == "lines"
+
+    attrs = line["attributes"]
+    assert attrs["x"] == "8"
+    assert attrs["y"] == "81"
+    assert attrs["points"] == @line_attr["points"]
+    assert attrs["line_name"] == "Percy Pennyworth"
+    assert attrs["line_type"] == "road"
+
+    id = account.id
+    assert %{"data" => %{"id" => ^id, "type" => "accounts"}} = line["relationships"]["account"]
   end
 end

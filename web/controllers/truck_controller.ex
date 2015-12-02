@@ -1,7 +1,7 @@
 defmodule Apiv3.TruckController do
   use Apiv3.Web, :controller
 
-  plug :scrub_params, "truck" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "truck"] when action in [:create, :update]
 
   @preload_fields [:appointment, :weighticket, :batches]
   use Apiv3.AutomagicControllerConvention

@@ -3,7 +3,7 @@ defmodule Apiv3.WeighticketController do
 
   alias Apiv3.WeighticketQuery, as: Q
 
-  plug :scrub_params, "weighticket" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "weighticket"] when action in [:create, :update]
   @preload_fields Q.preload_fields
   use Apiv3.AutomagicControllerConvention
 

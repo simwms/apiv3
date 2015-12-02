@@ -17,7 +17,7 @@ defmodule Apiv3.BatchControllerTest do
     Enum.map batches, fn batch -> 
       assert batch["id"]
       assert batch["type"] == "batches"
-      assert batch["attributes"]["account_id"] == account.id
+      assert batch["relationships"]["account"]["data"]["id"] == account.id
     end
   end
 end

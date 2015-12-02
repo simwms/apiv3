@@ -3,7 +3,7 @@ defmodule Apiv3.PictureController do
 
   alias Apiv3.PictureBuilder
 
-  plug :scrub_params, "picture" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "picture"] when action in [:create, :update]
   
   def create(conn, %{"picture" => picture_params}) do
     account = conn |> current_account

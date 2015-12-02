@@ -15,7 +15,7 @@ defmodule Apiv3.TruckControllerTest do
     trucks = response["data"]
     assert Enum.count(trucks) == 0
     Enum.map trucks, fn truck -> 
-      assert truck["attributes"]["account_id"] == account.id
+      assert truck["relationships"]["account"]["data"]["id"] == account.id
     end
   end
 end

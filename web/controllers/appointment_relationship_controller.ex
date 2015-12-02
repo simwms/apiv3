@@ -2,7 +2,7 @@ defmodule Apiv3.AppointmentRelationshipController do
   use Apiv3.Web, :controller
 
   alias Apiv3.AppointmentRelationshipQuery, as: Q
-  plug :scrub_params, "appointment_relationship" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "appointment_relationship"] when action in [:create, :update]
   @preload_fields Q.preload_fields
 
   use Apiv3.AutomagicControllerConvention

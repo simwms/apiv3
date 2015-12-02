@@ -3,7 +3,7 @@ defmodule Apiv3.SessionController do
 
   alias Apiv3.UserSessionHelper, as: Session
 
-  plug :scrub_params, "session" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "session"] when action in [:create, :update]
 
   def show(conn, _) do
     case conn |> current_user do

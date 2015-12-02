@@ -11,11 +11,18 @@ defmodule Apiv3.BroadcastUtilsTest do
   end
   
   test "delta broadcast", %{user: user, socket: socket} do
-    topic = "users_socket:#{user.id}"
+    topic = "users:#{user.id}"
     @endpoint.subscribe(self(), topic)
     BroadcastUtils.delta(user, user)
-    expected = %{:id => user.id, :email => user.email, :username => user.username}
+    expected = %{
+      id: user.id, 
+      type: "users",
+      attributes: %{
+        email: user.email, 
+        username: user.username
+      }
+    }
     assert socket.assigns.user_id == user.id
-    assert_broadcast "delta", %{user: ^expected}
+    assert_broadcast "delta", %{data: ^expected}
   end
 end

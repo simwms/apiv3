@@ -16,10 +16,12 @@ defmodule Apiv3.UserEmployeeControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    hash = response["employee"]
-    assert hash["id"] == employee.id
-    assert hash["email"] == employee.email
-    assert hash["account_id"] == account.id
-    assert hash["role"] == "admin_manager"
+    hash = response["data"]
+    id = employee.id
+    assert %{"id" => ^id, "type" => "employees", "attributes" => attrs, "relationships" => rels} = hash
+    
+    assert attrs["email"] == employee.email
+    assert attrs["role"] == "admin_manager"
+    assert rels["account"]["data"]["id"] == account.id
   end
 end

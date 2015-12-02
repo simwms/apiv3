@@ -1,7 +1,7 @@
 defmodule Apiv3.JsViewConvention do
   def infer_fields(view_module) do
     model_module = view_module |> Fox.AtomExt.infer_model_module 
-    model_module.__schema__(:fields)
+    model_module.__schema__(:fields) |> Enum.reject(fn field -> field == :id end)
   end
   def infer_associations(view_module) do
     model_module = view_module |> Fox.AtomExt.infer_model_module

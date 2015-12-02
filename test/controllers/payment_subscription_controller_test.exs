@@ -8,18 +8,21 @@ defmodule Apiv3.PaymentSubscriptionControllerTest do
 
   test "show", %{conn: conn, account: account} do
     path = conn |> payment_subscription_path(:show)
-    %{"payment_subscription" => sub} = conn
+    %{"data" => sub} = conn
     |> get(path, %{})
     |> json_response(200)
 
     plan = account |> assoc(:service_plan) |> Repo.one!
-
-    assert sub
-    assert sub["id"]
-    assert sub["token_already_consumed"] == false
-    assert sub["account_id"] == account.id
-    assert sub["service_plan_id"] == plan.id
     assert plan.simwms_name =~ "free"
+
+    assert sub["id"]
+    assert sub["type"] == "payment_subscriptions"
+    attrs = sub["attributes"]
+    assert attrs["token_already_consumed"] == false
+
+    assert %{"account" => %{"data" => yy}, "service_plan" => %{"data" => xx}} = sub["relationships"]
+    assert yy["id"] == account.id
+    assert xx["id"] == plan.id
   end
 
   test "update", %{conn: conn, account: account} do
@@ -32,11 +35,11 @@ defmodule Apiv3.PaymentSubscriptionControllerTest do
 
     path = conn |> payment_subscription_path(:update)
 
-    %{"payment_subscription" => sub} = conn
+    %{"data" => %{"relationships" => %{"service_plan" => sp}}} = conn
     |> put(path, payment_subscription: attr)
     |> json_response(200)
 
-    assert sub["service_plan_id"] == plan.id
+    assert sp["data"]["id"] == plan.id
   end
 
 end

@@ -3,7 +3,7 @@ defmodule Apiv3.AppointmentController do
 
   alias Apiv3.AppointmentMeta
   alias Apiv3.AppointmentQuery
-  plug :scrub_params, "appointment" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["appointment", "data"] when action in [:create, :update]
   @preload_fields AppointmentQuery.preload_fields
   use Apiv3.AutomagicControllerConvention
   

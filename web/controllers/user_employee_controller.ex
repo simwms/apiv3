@@ -2,7 +2,7 @@ defmodule Apiv3.UserEmployeeController do
   use Apiv3.Web, :controller
   alias Apiv3.EmployeeQuery, as: Q
   
-  plug :scrub_params, "employee" when action in [:create, :update]
+  plug Apiv3.Plugs.ScrubParamsChoice, ["data", "employee"] when action in [:create, :update]
   
   plug :put_view, Apiv3.EmployeeView
 

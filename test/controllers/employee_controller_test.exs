@@ -12,10 +12,11 @@ defmodule Apiv3.EmployeeControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    employees = response["employees"]
+    employees = response["data"]
     assert Enum.count(employees) >= 0
-    Enum.map employees, fn employee -> 
-      assert employee["account_id"] == account.id
+    Enum.map employees, fn employee ->
+      assert %{"relationships" => %{"account" => acc} } = employee
+      assert acc["data"]["id"] == account.id
     end
   end
 
@@ -33,10 +34,13 @@ defmodule Apiv3.EmployeeControllerTest do
     |> get(path, %{})
     |> json_response(200)
 
-    hash = response["employee"]
+    hash = response["data"]
     assert hash["id"] == employee.id
-    assert hash["email"] == employee.email
-    assert hash["account_id"] == account.id
-    assert hash["role"] == "none"
+    assert hash["type"] == "employees"
+    attrs = hash["attributes"]
+    assert attrs["email"] == employee.email
+    assert attrs["role"] == "none"
+    rels = hash["relationships"]
+    assert rels["account"]["data"]["id"] == account.id
   end
 end

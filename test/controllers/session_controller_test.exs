@@ -15,11 +15,12 @@ defmodule Apiv3.SessionControllerTest do
   test "create", %{conn: conn, user: user} do
     path = conn |> session_path(:create)
     conn = conn |> post(path, %{ "session" => @user_attr})
-    %{"session" => session} = conn |> json_response(201)
+    %{"data" => session} = conn |> json_response(201)
 
     current_user_id = conn |> get_session(:current_user_id)
     assert session["id"] == user.id
-    assert session["remember_token"]
+    assert session["type"] == "sessions"
+    assert session["attributes"]["remember_token"]
     assert current_user_id == user.id
   end
 
@@ -59,7 +60,7 @@ defmodule Apiv3.SessionControllerTest do
   test "show", %{conn: conn, user: user} do
     create_path = conn |> session_path(:create)
     path = conn |> session_path(:show)
-    %{"session" => session} = conn
+    %{"data" => session} = conn
     |> post(create_path, %{"session" => @user_attr})
     |> get(path, %{})
     |> json_response(200)
@@ -70,12 +71,12 @@ defmodule Apiv3.SessionControllerTest do
   test "show with remember_token", %{conn: conn, user: user} do
     assert user.remember_token
     path = conn |> session_path(:show)
-    %{"session" => session} = conn 
+    %{"data" => session} = conn 
     |> put_req_header("simwms-user-session", user.remember_token)
     |> get(path, %{})
     |> json_response(200)
 
     assert session["id"] == user.id
-    assert session["remember_token"] == user.remember_token
+    assert session["attributes"]["remember_token"] == user.remember_token
   end
 end

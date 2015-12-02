@@ -14,12 +14,12 @@ defmodule Apiv3.UserControllerTest do
   }
   test "create", %{conn: conn} do
     path = conn |> user_path(:create)
-    %{"user" => user} = conn
+    %{"data" => user} = conn
     |> post(path, %{ "user" => @user_attr})
     |> json_response(201)
 
-    assert user["id"]
-    assert user["email"] == @user_attr["email"]
-    assert user["username"] == @user_attr["username"]
+    assert %{"id" => _, "type" => "users", "attributes" => attrs} = user
+    assert attrs["email"] == @user_attr["email"]
+    assert attrs["username"] == @user_attr["username"]
   end
 end

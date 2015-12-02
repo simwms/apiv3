@@ -15,7 +15,7 @@ defmodule Apiv3.CameraControllerTest do
     cameras = response["data"]
     assert Enum.count(cameras) == 0
     Enum.map cameras, fn camera -> 
-      assert camera["attributes"]["account_id"] == account.id
+      assert camera["relationships"]["account"]["data"]["id"] == account.id
     end
   end
 end

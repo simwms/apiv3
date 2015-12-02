@@ -29,9 +29,9 @@ defmodule Apiv3.PictureControllerTest do
     response = conn
     |> post(path, picture: picture_attr)
     |> json_response(200)
-    picture = response["picture"]
+    picture = response["data"]
     assert picture
     assert picture["id"]
-    assert picture["account_id"] == account.id
+    assert picture["relationships"]["account"]["data"]["id"] == account.id
   end
 end
